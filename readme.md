@@ -1,3 +1,5 @@
+[![Build Status](https://webapi.biicode.com/v1/badges/pablodev/pablodev/graph/master)](https://www.biicode.com/pablodev/graph) 
+
 GRAPH library for bit-encoded graphs
 ===================
 
@@ -115,4 +117,3 @@ Acknowledgements
 
 This research has been partially funded by the Spanish Ministry of Economy and Competitiveness (MINECO), national grant DPI 2010-21247-C02-01.
 
-[![Build Status](https://webapi.biicode.com/v1/badges/pablodev/pablodev/courses_sic/master)](https://www.biicode.com/pablodev/courses_sic) 
