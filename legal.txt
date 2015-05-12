@@ -1,0 +1,48 @@
+Contents: GRAPH library to manage simple unweighted bit encoded graphs
+
+Release: GRAPH 1.0
+First update: July 2014
+Last update: May 2015
+Author: pablo san segundo CAR(UPM-CSIC)
+URL: https://www.researchgate.net/profile/Pablo_San_Segundo
+Platforms: tested on Windows 64bit OS (should work on Linux)
+Applications: Exact maximum clique-family of publihed algorithms BBMC: BBMC, BBMCR, BBMCL, BBMCX, BMCXR, BBMCSP, BBMCPara
+
+This small library contains the two basic classes Graph and Ugraph which implement bit encoded graphs in 64 bit computers. They wrap basic functionality to build directed and undirected graphs, used successfully un a number of research projects related to combinatorial optimization. In particular the lib is at the core of BBMC a leading bit parallel algorithm for the maximum clique problem.
+
+Date: Septembre 2014
+A new feature is now provided with GRAPH which analyses any graph and provides useful information. At the moment: maximum and minimum graph degree, k-core decomposition and number, minimum width sorting are supported. Moreover k-core analysis also gives a useful upper bound for maximum clique (k-core number+1). A reasonablyl tight lower bound for maximum clique is also provided.
+
+
+Algorithm BBMC has been described in a number of papers. Below are the main references:
+
+[1] Relaxed approximate coloring in exact maximum clique search. Pablo San Segundo, Cristobal Tapia. Computers & Operations Research, 2013
+[2] An improved bit parallel exact maximum clique algorithm. Pablo San Segundo, Fernando Matia, Diego Rodriguez-Losada, Miguel Hernando, Optimization Letters 2011. 
+[3] An exact bit-parallel algorithm for the maximum clique problem.Pablo San Segundo, Diego Rodríguez-Losada, Agustin Jimenez. Computers & Operations Research, 2011
+[4] Efficient search using bitboard models. Pablo San Segundo, Ramon Galan, Fernando Matia, Diego Rodriguez-Losada, Agustin Jimenez. ICTAI 06, 2006.
+[5] Exact Algorithms for Maximum Clique: A Computational Study. Prosser,P. Algorithms, 2012  
+
+In [5], BBMC was rated fastest wrt to other state of the art exact maximum clique algorithms.
+
+LICENCE
+The MIT License (MIT)
+
+Copyright (c) 2015 Pablo San Segundo
+
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in all
+copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+SOFTWARE.

@@ -1,0 +1,13 @@
+c starred graph with a 2 clique
+p edge 11 11
+e 1 2
+e 1 3
+e 1 4
+e 1 5
+e 1 6
+e 1 7
+e 1 8
+e 1 9
+e 1 10
+e 1 11
+e 2 7
