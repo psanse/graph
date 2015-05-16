@@ -33,6 +33,9 @@ EDGES<T>::EDGES(string filename, T& gout):g(gout){
 	if(!f){ 
 		cerr<<filename.c_str()<<" not opened correctly"<<endl;
 	}
+
+	//set name without path
+	g.set_name(filename, true);
 }
 
 template<class T>
@@ -62,8 +65,7 @@ template<class T>
 int EDGES<T>::read(){
 	int N, M, v, w;
 	bool loops=false;
-
-
+	
 	//read size (opens and closes file)  and removes header comments: %,, #
 	cout<<"determining size --------------"<<endl;
 	int ret_code;
@@ -90,9 +92,9 @@ int EDGES<T>::read(){
 		g.add_edge(v-1, w-1);		//0 based
 	}
 	
-	if(loops)
+	if(loops){
 		cerr<<"loops found and removed"<<endl;
-	cout<<"graph read correctly-----------------------"<<endl;
+	}else {cout<<"graph read correctly-----------------------"<<endl;}
 	
 return 0;
 }

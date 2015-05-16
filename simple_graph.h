@@ -54,7 +54,7 @@ public:
 	int set_graph						(std::string filename);
 	
 	std::string get_name				();
-	void set_name						(std::string graph_name);
+	void set_name						(std::string graph_name, bool remove_path=false);
 const T* get_graph						()					const;	
 virtual void add_edge					(int v, int w);								//v->w	(no self_loops allowed)
 virtual void remove_edge				(int v, int w);		
@@ -178,8 +178,14 @@ Graph<T>::Graph (int size){
 }
 
 template<class T>
-void Graph<T>::set_name(std::string name){
-	m_name=name;
+void Graph<T>::set_name(std::string name, bool remove_path){
+	if(remove_path){
+		string str=name;
+		size_t found=str.find_last_of("/\\");
+		m_name=str.substr(found+1);
+	}else{
+		m_name=name;
+	}
 }
 
 template<class T>
@@ -432,11 +438,8 @@ int Graph<T>::read_dimacs(const string& filename){
 	}
 
 
-	//name
-	string str=filename;
-	size_t found;
-	found=str.find_last_of("/\\");
-	m_name=str.substr(found+1);
+	//name (removes path)
+	set_name(filename, true);	
 
 f.close();
 return 0;

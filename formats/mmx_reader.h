@@ -66,9 +66,7 @@ int MMI<T>::read(const string& filename){
     }
 
 #endif
-
-
-
+	
 	//find out size of sparse matrix 
 	if ((ret_code = mm_read_mtx_crd_size(f, &M, &N, &nz)) !=0){
 		what(ret_code);
@@ -82,8 +80,7 @@ int MMI<T>::read(const string& filename){
 			fclose(f);
 		return -1;
 	}
-	
-	
+		
 	//init size
 	g.init(N);
 	
@@ -96,6 +93,9 @@ int MMI<T>::read(const string& filename){
 		
 		g.add_edge(v-1, w-1);		//0 based
     }
+
+	//name (remove path)
+	g.set_name(filename, true);	
 
 			
 	fclose(f);
