@@ -77,6 +77,7 @@ int EDGES<T>::read(){
 	}
 
 	//reads graph: no error is expected here
+	string graphname(g.get_name());						//stores name of file, already without path before it is initialized
 	cout<<"allocating memory for graph size:"<<N<<" --------------"<<endl;
 	g.init(N);
 	cout<<"reading graph from file-----------------------"<<endl;
@@ -95,6 +96,9 @@ int EDGES<T>::read(){
 	if(loops){
 		cerr<<"loops found and removed"<<endl;
 	}else {cout<<"graph read correctly-----------------------"<<endl;}
+
+	//set name (without path)
+	g.set_name(graphname, false);
 	
 return 0;
 }
