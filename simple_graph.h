@@ -398,9 +398,11 @@ int Graph<T>::read_dimacs(const string& filename){
 	//header (find p edges line)
 	bool loop_finding_header=true;
 	do{
-		f.getline(line, 250);
 		c=f.peek();
-		if(c=='\n') continue;		//allows for empty lines. ***WATCH OUT FOR PORTABILITY!
+		if(c=='\n' /*empty lines*/ || c=='c'){				
+			f.getline(line, 250);
+			continue;		
+		}
 		switch(c){
 		case 'p':  //header p edge <nV> <nE>
 			f>>token>>token>>size>>nEdges;
@@ -411,6 +413,7 @@ int Graph<T>::read_dimacs(const string& filename){
 				return -1;
 			}
 			loop_finding_header=false;
+			f.getline(line, 250);			//remove remaining part of the line
 			break;
 		case 'c':
 			break;//comment
@@ -424,7 +427,6 @@ int Graph<T>::read_dimacs(const string& filename){
 	//allocation
 	init(size);
 	for(int e=0; e<nEdges; e++){
-		f.getline(line, 250);
 		f>>c;
 		if(c!='e'){
 			cerr<<filename<<":wrong header for edges reading DIMACS format"<<endl;
@@ -435,6 +437,8 @@ int Graph<T>::read_dimacs(const string& filename){
 		//add bidirectional edge
 		f>>v1>>v2;
 		add_edge(v1-1,v2-1);
+			
+		f.getline(line, 250);  //remove remaining part of the line
 	}
 
 

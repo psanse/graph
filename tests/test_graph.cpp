@@ -161,17 +161,9 @@ TEST(Graph_test, degree_brock){
 	
 	ugraph g("brock200_1.clq");
 	
-	/*EXPECT_TRUE(g.is_edge(1,0));
-	EXPECT_TRUE(g.is_edge(2,0));
-	EXPECT_TRUE(g.is_edge(2,1));
-	EXPECT_TRUE(g.is_edge(3,0));
-	EXPECT_TRUE(g.is_edge(3,1));
-	EXPECT_TRUE(g.is_edge(3,2));
-	EXPECT_TRUE(g.is_edge(4,3));
-	EXPECT_TRUE(g.is_edge(5,3));
-	EXPECT_TRUE(g.is_edge(5,4));
-	EXPECT_TRUE(g.is_edge(6,4));
-	EXPECT_TRUE(g.is_edge(6,5));*/
+
+	EXPECT_EQ (200,  g.number_of_vertices());
+	EXPECT_EQ (14834,  g.number_of_edges());
 	
 	bitarray bba(g.number_of_vertices());
 	EXPECT_FALSE(g.is_edge(0,1));		//(1)
@@ -180,7 +172,8 @@ TEST(Graph_test, degree_brock){
 	EXPECT_EQ (0,g.degree(1,bba));		//expected because of (1)
 
 	bba.set_bit(0, g.number_of_vertices()-1);
-	EXPECT_EQ (g.get_neighbors(1).popcn64(),g.degree(1,bba));		
+	EXPECT_EQ (g.get_neighbors(1).popcn64(),g.degree(1,bba));
+
 }
 
 TEST(Graph_test, max_degree_subgraph){

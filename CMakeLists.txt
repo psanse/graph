@@ -19,9 +19,9 @@ tests/test_graph_properties_in_folder.cpp
 IF(BII_tests_gtest_main_SRC)
 
 LIST(APPEND BII_tests_gtest_main_SRC 
-#tests/test_graph.cpp
-tests/test_kcore.cpp
-tests/test_kcore_in_folder.cpp
+tests/test_graph.cpp
+#tests/test_kcore.cpp
+#tests/test_kcore_in_folder.cpp
 #tests/test_random_graph.cpp
 #tests/test_sparse_graph.cpp
 #tests/test_format.cpp
