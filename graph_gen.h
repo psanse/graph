@@ -156,7 +156,7 @@ int RandomGen<Graph_t>::create_ugraph (Graph_t& g, int n, double p){
 	}
 
 	if(g.init(n)){
-		cerr<<"error during allcoation: undirected random graph not generated"<<std::endl;
+		cerr<<"error during allocation: undirected random graph not generated"<<std::endl;
 		return -1;
 	}
 
@@ -172,7 +172,7 @@ int RandomGen<Graph_t>::create_ugraph (Graph_t& g, int n, double p){
 
 	//name random
 	std::stringstream sstr;
-	sstr<<"r"<<n<<"_"<<"0."<<setprecision(2)<<100*p<<".txt";
+	sstr<<"r"<<n<<"_"<<p<<".txt";
 	g.set_name(sstr.str());
 
 return 0;
@@ -210,7 +210,7 @@ int RandomGen<Graph_t>::create_graph (Graph_t& g, int n, double p){
 
 	//name random
 	std::stringstream sstr;
-	sstr<<"r"<<n<<"_"<<"0."<<setprecision(2)<<100*p<<".txt";
+	sstr<<"r"<<n<<"_"<<p<<".txt";
 	g.set_name(sstr.str());
 
 return 0;

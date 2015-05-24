@@ -13,9 +13,14 @@ using namespace std;
 
 #define LOG_BENCHMARK "C:/Users/Pablo/Desktop/logrand/"
 
-
 int main(){
 	ugraph g;
+	
+	//create a single graph
+	RandomGen<ugraph>::create_ugraph(g,100,.1);
+	g.print_data();
+
+	//create a benchmark
 	random_attr_t rt(1000, 1001, .01, .31, 10, 50, .1);
 	RandomGen<ugraph>::create_ugraph_benchmark(LOG_BENCHMARK, rt);
 
