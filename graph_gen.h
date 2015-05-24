@@ -248,7 +248,7 @@ int RandomGen<Graph_t>::create_ugraph_benchmark (const string& path, const rando
 			for(int k=0; k<rd.nRep; k++){
 				create_ugraph(g,i,j);
 				o.str("");
-				o<<mypath.c_str()<<"r"<<i<<"_0."<<std::setprecision(2)<<100*j<<"_"<<k<<".txt";		
+				o<<mypath.c_str()<<"r"<<i<<"_"<<j<<"_"<<k<<".txt";		
 				f.open(o.str().c_str());
 				if(!f){
 					cerr<<"Error al generar el archivo"<<endl;
@@ -283,7 +283,7 @@ int RandomGen<Graph_t>::create_graph_benchmark (const string& path, const random
 			for(int k=0; k<rd.nRep; k++){
 				create_graph(g,i,j);
 				o.str("");
-				o<<mypath.c_str()<<"r"<<i<<"_0."<<std::setprecision(2)<<100*j<<"_"<<k<<".txt";		
+				o<<mypath.c_str()<<"r"<<i<<"_"<<j<<"_"<<k<<".txt";			
 				f.open(o.str().c_str());
 				if(!f){
 					cerr<<"Error when opening file to write"<<endl;

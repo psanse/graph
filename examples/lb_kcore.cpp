@@ -1,19 +1,20 @@
+//example which for a given sparse_graph and a number of iteratios returns an initial solution to maximum clique
+//currently deprecated
+
 #include <iostream>
 #include <stdio.h>
 #include <stdlib.h>
 #include "../kcore.h"
+#include "pablodev/utils/common.h"  //to print collections
 
 using namespace std;
 
-template <class Collection>
-void printCol(const Collection& c, ostream& o=cout ){
-	copy(c.begin(), c.end(), ostream_iterator<typename Collection::value_type>(o," " ));
-}
 
 int main(int argc, char** argv){
 	if(argc!=3){
 		cerr<<"incorrect number of parameters"<<endl;
 		cerr<<"required <filename> <number of iterations or -1 for all possible iterations>"<<endl;
+		return -1;
 	}
 
 	//read params
@@ -32,6 +33,6 @@ int main(int argc, char** argv){
 	else  initial_clique=kc.find_heur_clique_sparse(num_iter);
 	double time_sec=pt.wall_toc();
 	cout<<endl<<"[t:"<<time_sec<<","<<" Smax:"<<initial_clique.size()<<"]"<<endl;
-	printCol(initial_clique);
+	com::stl::print_collection(initial_clique);
 }
 

@@ -1,11 +1,10 @@
-//writes simple udirected graph to file in different formats
+//writes a simple udirected graph to file in different formats
 //author:pss
 //date: 12/12/2014
 
 #include <iostream>
 #include <string.h>
 #include <string>
-#include "google/gtest/gtest.h"
 #include "../graph.h"
 
 using namespace std;
@@ -14,7 +13,7 @@ enum file_t{DIMACS=1, MTX, EDGELIST};
 
 int main(int argc, char** argv){
 	if(argc!=3){
-		cerr<<"please introduce filename and format: 1-DIMACS, 2-MTX, 3-EDGES";
+		cerr<<"please introduce filename and format: 1-DIMACS, 2-MTX, 3-EDGES"<<endl;
 		return -1;
 	}
 
