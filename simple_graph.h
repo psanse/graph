@@ -386,7 +386,7 @@ int Graph<T>::read_dimacs(const string& filename){
 //////////////////////
 	
 	int size, nEdges, v1, v2, edges=0;
-	char token[10], line [250], c;
+	char token[10]; char line [250]; char c;
 	
 	fstream f(filename.c_str());
 	if(!f){
@@ -399,7 +399,7 @@ int Graph<T>::read_dimacs(const string& filename){
 	bool loop_finding_header=true;
 	do{
 		c=f.peek();
-		if(c=='\n' /*empty lines*/ || c=='c'){				
+		if(c=='\n' || c=='c' || c=='\r'){
 			f.getline(line, 250);
 			continue;		
 		}
@@ -407,7 +407,7 @@ int Graph<T>::read_dimacs(const string& filename){
 		case 'p':  //header p edge <nV> <nE>
 			f>>token>>token>>size>>nEdges;
 			if(!f.good() || strstr(token, "edge")==0){
-				cerr<<"bad header line";
+				cerr<<"bad header 'p' line"<<endl;
 				clear();
 				f.close();
 				return -1;
@@ -416,10 +416,11 @@ int Graph<T>::read_dimacs(const string& filename){
 			f.getline(line, 250);			//remove remaining part of the line
 			break;
 		case 'c':
-			break;//comment
+			break;						//comment
 		default:									
 			clear();
 			f.close();
+			cerr<<"wrong DIMACS protocol: first character of new line is: "<<c<<endl;;
 			return -1;
 		}
 	}while(loop_finding_header);
