@@ -31,7 +31,6 @@
 
 using namespace std; 
 
-
 typedef vector<int> vint;
 
 class DegUg{
@@ -41,18 +40,19 @@ public:
 	~DegUg						(){};
 				
 	//degree
-	int degree_sort				(vint::iterator first, vint::iterator last);	
-	int degree_sort				(bitarray& bb, vint::iterator from);	
-	int degree					(vint::iterator first, vint::iterator last);	
-	int degree					(bitarray& bb);	
-
+	int degree_sort				(int* first, int* end);	
+	int degree_sort				(bitarray& bb, int* to);	
 	
-    void reset_deg					();				
+	void reset_deg				();										//includes memory assignment if required
 	
-//functor for absolute sorting in decreasing order of degree
+	//functor for absolute sorting in decreasing order of degree
 	bool operator()(int v, int w){
 		 return (m_vdeg[v]<m_vdeg[w]);
 	}
+
+private:
+	int degree					(int* first, int* end);					//assumes memory of m_vdeg is assigned correctly
+	int degree					(bitarray& bb);							//assumes memory of m_vdeg is assigned correctly
 
 ////////////
 //the graph
@@ -70,22 +70,20 @@ void DegUg::reset_deg(){
 	}
 }
 inline
-int DegUg::degree_sort(vint::iterator first, vint::iterator last){
-
-	degree(first, last);					//degrees are computed from scratch
-	sort(first, last, *this);
-	
+int DegUg::degree_sort(int* first, int* end){
+	degree(first, end);					//degrees are computed from scratch
+	sort(first, end, *this);
 return 0;
 }
 	
 inline
-int DegUg::degree_sort(bitarray& bb, vint::iterator from){
+int DegUg::degree_sort(bitarray& bb, int* to){
 //////////////
 // computes degree sort in subgraph bb and copies the new order 
-// starting in from
+// in "to"
 // RETURNS -1 if error, 0 if ok	
 //
-// Not optimized
+// TODO: experimental, needs optimization
 	
 //compute degrees from scratch
 	degree(bb);
@@ -93,17 +91,20 @@ int DegUg::degree_sort(bitarray& bb, vint::iterator from){
 	vint lv;
 	bb.to_vector(lv);
 	std::sort(lv.begin(), lv.end(),*this);
-	copy(lv.begin(), lv.end(), from);
+	copy(lv.begin(), lv.end(), to);
 
 return 0;
 }
 
 inline 
 int DegUg::degree(bitarray& sg){
+//////////////
+// computes degree sort in subgraph bb and copies the new order 
+// in "to"
+// RETURNS -1 if error, 0 if ok	
+//
+// TODO: experimental, needs optimization
 
-	//updates size of degree vector if necessary
-	reset_deg();	
-	
 	//iterates over all vertices
 	int v=EMPTY_ELEM;
 	if(sg.init_scan(bbo::NON_DESTRUCTIVE)!=EMPTY_ELEM){
@@ -119,17 +120,17 @@ return 0;
 }
 
 inline 
-int DegUg::degree(vint::iterator first, vint::iterator last){
-//compute degrees from scratch
+int DegUg::degree(int* first, int* end){
+//compute degrees from scratch in O(n*n) 
 //returns -1 if ERROR, 0 if OK
 
-	m_vdeg.assign(m_g.number_of_vertices(), 0);		//obligatory
+	fill(m_vdeg.begin(), m_vdeg.end(), 0);	
 
 	//loops over all elements 
-	for(vint::iterator begin=first; begin!=last; begin++){
-		for(vint::iterator begin_2=first; begin_2!=last; begin_2++){
-			if(m_g.get_neighbors(*begin).is_bit(*begin_2)){
-				m_vdeg[*begin]+=1;
+	for(int* f1=first; f1!=end; f1++){
+		for(int* f2=first; f2!=end; f2++){
+			if(m_g.get_neighbors(*f1).is_bit(*f2)){
+				m_vdeg[*f1]+=1;
 			}
 		}
 	}
