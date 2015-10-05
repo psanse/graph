@@ -36,7 +36,7 @@ public:
 	friend bool operator == (const Ugraph<B>& lhs, const Ugraph<B>& rhs);
 
 	Ugraph						():Graph<T>(){}									//does not allocate memory
-	Ugraph						(int nVert):Graph<T>(nVert){}						//creates empty graph with size vertices	
+	Ugraph						(int nVert):Graph<T>(nVert){}					//creates empty graph with size vertices	
 	Ugraph						(const Ugraph& ug):Graph<T>(ug){}
 	Ugraph						(std::string filename);		
     ~Ugraph						(){Graph<T>::clear();};
