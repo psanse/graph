@@ -1,5 +1,5 @@
 /*  
- * degreeh.h file from the GRAPH library, a C++ library for bit encoded 
+ * degreeh_ugraph.h file from the GRAPH library, a C++ library for bit encoded 
  * simple unweighted graphs. Computes degree related operations for UNDIRECTED
  * NON-SPARSE graphs, specifically SORTING
  *
@@ -27,7 +27,7 @@
 #include "pablodev/utils/common.h"
 
 #include <vector>
-#include <algorithm>
+#include <algorithm>	
 
 using namespace std; 
 
