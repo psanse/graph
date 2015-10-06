@@ -42,8 +42,12 @@ public:
 	//degree
 	int degree_sort				(int* first, int* end);	
 	int degree_sort				(bitarray& bb, int* to);	
-			
-	//functor for absolute sorting in DECREASING order of degree
+	int degree_stable_sort		(int* first, int* end);
+	int degree_stable_sort		(bitarray& bb, int* to);
+	
+	void reset_deg				();										//includes memory assignment if required
+	
+	//functor for absolute sorting in decreasing order of degree
 	bool operator()(int v, int w){
 		 return (m_vdeg[v]>m_vdeg[w]);
 	}
@@ -81,6 +85,30 @@ int DegUg::degree_sort(bitarray& bb, int* to){
 	vint lv;
 	bb.to_vector(lv);
 	sort(lv.begin(), lv.end(),*this);
+	copy(lv.begin(), lv.end(), to);
+
+return 0;
+}
+
+int DegUg::degree_stable_sort	(int* first, int* end){
+	degree(first, end);											//degrees are computed from scratch
+	stable_sort(first, end, *this);
+return 0;
+}
+int DegUg::degree_stable_sort	(bitarray& bb, int* to){
+//////////////
+// computes degree sort in subgraph bb and copies the new order
+// in "to"
+// RETURNS -1 if error, 0 if ok
+//
+// TODO: experimental, needs optimization
+
+//compute degrees from scratch
+	degree(bb);
+
+	vint lv;
+	bb.to_vector(lv);
+	stable_sort(lv.begin(), lv.end(),*this);
 	copy(lv.begin(), lv.end(), to);
 
 return 0;
