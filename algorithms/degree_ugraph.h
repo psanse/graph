@@ -39,11 +39,12 @@ public:
 	DegUg						(ugraph& ug):m_g(ug), m_vdeg(m_g.number_of_vertices(),0){}
 	~DegUg						(){};
 				
-	//degree
 	int degree_sort				(int* first, int* end);	
 	int degree_sort				(bitarray& bb, int* to);	
 	int degree_stable_sort		(int* first, int* end);
 	int degree_stable_sort		(bitarray& bb, int* to);
+
+	int degree_sort				(int* first, int* end, int* from);					//set of vertices to order [first, end[; subgrah relevant for degrees [from, end[ 		
 	
 
 	//functor for absolute sorting 
@@ -52,7 +53,8 @@ public:
 	}
 
 private:
-	int degree					(int* first, int* end);					
+	int degree					(int* first, int* end);		
+	int degree					(int* first, int* end, int* from);	
 	int degree					(bitarray& bb);							
 
 ////////////
@@ -65,6 +67,16 @@ private:
 inline
 int DegUg::degree_sort(int* first, int* end){
 	degree(first, end);					//degrees are computed from scratch
+	sort(first, end, *this);
+return 0;
+}
+
+inline
+int DegUg::degree_sort	(int* first, int* end, int* from){
+//////////////////
+// degrees are based on subgraph [from, end[
+// vertex set sorted [first, end[
+	degree(first, end, from);					//degrees are computed from scratch
 	sort(first, end, *this);
 return 0;
 }
@@ -146,6 +158,22 @@ int DegUg::degree(int* first, int* end){
 	//loops over all elements 
 	for(int* f1=first; f1!=end; f1++){
 		for(int* f2=first; f2!=end; f2++){
+			if(m_g.get_neighbors(*f1).is_bit(*f2)){
+				m_vdeg[*f1]+=1;
+			}
+		}
+	}
+return 0;
+}
+
+inline
+int DegUg::degree (int* first, int* end, int* from){
+	
+	fill(m_vdeg.begin(), m_vdeg.end(), 0);	
+
+	//loops over all elements 
+	for(int* f1=first; f1!=end; f1++){
+		for(int* f2=from; f2!=end; f2++){
 			if(m_g.get_neighbors(*f1).is_bit(*f2)){
 				m_vdeg[*f1]+=1;
 			}
