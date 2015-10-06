@@ -42,33 +42,23 @@ public:
 	//degree
 	int degree_sort				(int* first, int* end);	
 	int degree_sort				(bitarray& bb, int* to);	
-	
-	void reset_deg				();										//includes memory assignment if required
-	
-	//functor for absolute sorting in decreasing order of degree
+			
+	//functor for absolute sorting in DECREASING order of degree
 	bool operator()(int v, int w){
-		 return (m_vdeg[v]<m_vdeg[w]);
+		 return (m_vdeg[v]>m_vdeg[w]);
 	}
 
 private:
-	int degree					(int* first, int* end);					//assumes memory of m_vdeg is assigned correctly
-	int degree					(bitarray& bb);							//assumes memory of m_vdeg is assigned correctly
+	int degree					(int* first, int* end);					
+	int degree					(bitarray& bb);							
 
 ////////////
 //the graph
 	ugraph& m_g;				
-	vint m_vdeg;				//init to 0 on construction
+	vint m_vdeg;				//initialized to 0 upon construction, cannot be changed
 };
 
-inline
-void DegUg::reset_deg(){
-///////////
-// selectively initializes degree vector to correct size and 0 values
-	int gsize=m_g.number_of_vertices();
-	if(gsize!=m_vdeg.size()){
-		m_vdeg.assign(m_g.number_of_vertices(),0);
-	}
-}
+
 inline
 int DegUg::degree_sort(int* first, int* end){
 	degree(first, end);					//degrees are computed from scratch
@@ -90,7 +80,7 @@ int DegUg::degree_sort(bitarray& bb, int* to){
 
 	vint lv;
 	bb.to_vector(lv);
-	std::sort(lv.begin(), lv.end(),*this);
+	sort(lv.begin(), lv.end(),*this);
 	copy(lv.begin(), lv.end(), to);
 
 return 0;
@@ -134,7 +124,6 @@ int DegUg::degree(int* first, int* end){
 			}
 		}
 	}
-	
 return 0;
 }
 
