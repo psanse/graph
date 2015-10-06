@@ -45,9 +45,8 @@ public:
 	int degree_stable_sort		(int* first, int* end);
 	int degree_stable_sort		(bitarray& bb, int* to);
 	
-	void reset_deg				();										//includes memory assignment if required
-	
-	//functor for absolute sorting in decreasing order of degree
+
+	//functor for absolute sorting 
 	bool operator()(int v, int w){
 		 return (m_vdeg[v]>m_vdeg[w]);
 	}
