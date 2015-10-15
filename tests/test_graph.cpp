@@ -222,6 +222,27 @@ TEST(Graph_test, max_degree_subgraph_sparse){
 	cout<<"------------------------------"<<endl;
 }
 
+TEST(UGraph, complement_graph){
+
+	cout<<"Graph_test: complement graph ------------------------"<<endl;
+	ugraph g(4);
+	g.add_edge(0,1);
+	g.add_edge(1,2);
+	g.add_edge(0,2);
+	
+
+	ugraph cg;
+	g.create_complement(cg);
+
+	EXPECT_TRUE(cg.is_edge(0,3));
+	EXPECT_TRUE(cg.is_edge(1,3));
+	EXPECT_TRUE(cg.is_edge(2,3));
+	EXPECT_TRUE(g.number_of_vertices(),cg.number_of_vertices());
+	//cg.print_edges();
+}
+
+
+
 
 //
 //
@@ -366,16 +387,4 @@ TEST(Graph_test, max_degree_subgraph_sparse){
 //	
 //	EXPECT_EQ(3/ceil(10000/64.0),sg.block_density_index());		
 //}
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
 //

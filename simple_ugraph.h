@@ -56,6 +56,9 @@ public:
 	BITBOARD number_of_edges	(bool lazy=true);								
 	BITBOARD number_of_edges	(const BitBoardN& )				const;			//on induced graph by list of vertices
 
+	//graph creation	
+	int create_complement		(Ugraph& g)							;			//returns complement graph in g
+
 	//density	
 	double density				();
 	
@@ -491,6 +494,26 @@ int Ugraph<sparse_bitarray>::degree (int v, const BitBoardS & bbs) const	{
 	return ndeg;
 }
 
+template<class T>
+int Ugraph<T>::create_complement (Ugraph& ug)	{
+/////////////////////////
+// computes complement graph in ug (includes memory allocation memory)
+//
+// RETURNS: complement graph in ug, -1 if ERROR, O if OK
+	
+	//memory allocation of new complement graph
+	if( ug.init(m_size)==-1 ) return -1;
+
+	for(int i=0; i<m_size; i++){
+		for(int j=0; j<m_size; j++){
+			if(!m_g[i].is_bit(j)){
+				ug.add_edge(i,j);
+			}
+		}
+	}
+
+	return 0;
+}
 #endif
 
 

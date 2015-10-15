@@ -20,7 +20,7 @@ tests/test_degree.cpp
 IF(BII_tests_gtest_main_SRC)
 
 LIST(APPEND BII_tests_gtest_main_SRC 
-#tests/test_graph.cpp
+tests/test_graph.cpp
 tests/test_degree.cpp
 #tests/test_kcore.cpp
 #tests/test_kcore_in_folder.cpp
