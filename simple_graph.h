@@ -57,7 +57,8 @@ public:
 	void set_name						(std::string graph_name, bool remove_path=false);
 const T* get_graph						()					const;	
 virtual void add_edge					(int v, int w);								//v->w	(no self_loops allowed)
-virtual void remove_edge				(int v, int w);		
+virtual void remove_edge				(int v, int w);	
+		void remove_edges				(int v);									//removes in-out edges from v
 
 	//bitstring encoding
 	int number_of_vertices				()					const;
@@ -109,7 +110,7 @@ public:
 	int read_EDGES						(const string& filename);
 virtual	void  write_dimacs				(ostream& o);	
 virtual	void  write_EDGES				(ostream& o);
-virtual	void print_data					(std::ostream& = std::cout);
+virtual	void print_data					(bool lazy=true, std::ostream& = std::cout);
 	virtual void print_edges			(std::ostream& = std::cout);
 	
 //////////////////////////
@@ -375,6 +376,23 @@ void Graph<T>::remove_edge	(int v, int w){
 }
 
 template<class T>
+void Graph<T>::remove_edges (int v){
+//removes in-out edges from v
+	
+	//erases all outgoing edges from v
+	m_g[v].erase_bit();
+
+	//erases all ingoing edges
+	for(int w=0; w<m_size; w++){
+		if(w==v) continue;
+		m_g[w].erase_bit(v);
+	}
+
+	//updates edges
+	number_of_edges(false);
+}
+
+template<class T>
 int Graph<T>::read_dimacs(const string& filename){
 /////////////////////////////
 // Reads an unweighted simple directed graph in dimacs format
@@ -469,8 +487,8 @@ int  Graph<T>::read_EDGES (const string& filename){
 }
 
 template<class T>
-void Graph<T>::print_data(std::ostream& o){
-	o<<number_of_vertices()<<" "<<fixed<<number_of_edges()<<" "<<std::setprecision(6)<<density()<<" "<<m_name.c_str()<<endl;
+void Graph<T>::print_data( bool lazy, std::ostream& o){
+	o<<number_of_vertices()<<" "<<fixed<<number_of_edges(lazy)<<" "<<std::setprecision(6)<<density()<<" "<<m_name.c_str()<<endl;
 }
 
 

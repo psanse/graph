@@ -241,7 +241,37 @@ TEST(UGraph, complement_graph){
 	//cg.print_edges();
 }
 
+TEST(Graph, remove_edges){
+	cout<<"Graph_test: remove edges ------------------------"<<endl;
+	graph g(4);
+	g.add_edge(0,1);
+	g.add_edge(1,2);
+	g.add_edge(1,3);
+	g.add_edge(0,2);
 
+	g.remove_edges(1);
+	g.print_edges();
+	g.print_data(false);
+	EXPECT_TRUE(g.is_edge(0,2));
+	
+	cout<<"------------------------------"<<endl;
+}
+
+TEST(Ugraph, remove_edges){
+	cout<<"Ugraph_test: remove edges ------------------------"<<endl;
+	ugraph g(4);
+	g.add_edge(0,1);
+	g.add_edge(1,2);
+	g.add_edge(1,3);
+	g.add_edge(0,2);
+
+	g.remove_edges(1);
+	g.print_edges();
+	g.print_data(false);
+	EXPECT_TRUE(g.is_edge(0,2));
+	
+	cout<<"------------------------------"<<endl;
+}
 
 
 //

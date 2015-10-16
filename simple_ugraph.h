@@ -65,7 +65,7 @@ public:
 	//I/O
 	void print_degrees			(std::ostream& = cout)			const;
 	void print_edges			(std::ostream& = cout)			const;
-	void print_data				(std::ostream& = cout)			;
+	void print_data				(bool lazy=true, std::ostream& = cout);
 		
 	void write_dimacs			(ostream & );
 	void write_EDGES			(ostream &);
@@ -424,8 +424,8 @@ void Ugraph<sparse_bitarray>::write_mtx(ostream & o){
 }
 
 template<class T>
-void Ugraph<T>::print_data(std::ostream& o) {
-	o<<Graph<T>::number_of_vertices()<<" "<<fixed<<number_of_edges()<<" "<<std::setprecision(6)<<density()<<" "<<Graph<T>::m_name.c_str()<<endl;
+void Ugraph<T>::print_data(bool lazy, std::ostream& o) {
+	o<<Graph<T>::number_of_vertices()<<" "<<fixed<<number_of_edges(lazy)<<" "<<std::setprecision(6)<<density()<<" "<<Graph<T>::m_name.c_str()<<endl;
 }
 
 
