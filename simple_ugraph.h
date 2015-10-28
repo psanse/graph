@@ -494,6 +494,7 @@ int Ugraph<sparse_bitarray>::degree (int v, const BitBoardS & bbs) const	{
 	return ndeg;
 }
 
+
 template<class T>
 int Ugraph<T>::create_complement (Ugraph& ug)	{
 /////////////////////////
@@ -502,16 +503,15 @@ int Ugraph<T>::create_complement (Ugraph& ug)	{
 // RETURNS: complement graph in ug, -1 if ERROR, O if OK
 	
 	//memory allocation of new complement graph
-	if( ug.init(m_size)==-1 ) return -1;
+	if( ug.init(Graph<T>::m_size)==-1 ) return -1;
 
-	for(int i=0; i<m_size; i++){
-		for(int j=0; j<m_size; j++){
-			if(!m_g[i].is_bit(j)){
+	for(int i=0; i<Graph<T>::m_size; i++){
+		for(int j=0; j<Graph<T>::m_size; j++){
+			if(!Graph<T>::m_g[i].is_bit(j)){
 				ug.add_edge(i,j);
 			}
 		}
 	}
-
 	return 0;
 }
 #endif
