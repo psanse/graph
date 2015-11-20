@@ -17,6 +17,7 @@
  * kind, express or implied, and with no claim as to its
  * suitability for any purpose.
  *
+ * EXPERIMENTAL-WILL CHANGE IN THE FUTURE
  */
 
 #ifndef __DEGREE_H__
@@ -47,8 +48,8 @@ public:
 	int degree_sort				(int* first, int* end, int* from);					//set of vertices to order [first, end[; subgrah relevant for degrees [from, end[ 		
 	
 
-	//functor for absolute sorting 
-	bool operator()(int v, int w){
+	//functor for sorting criteria (change for specific sorting)
+	bool operator()(int v, int w) const{
 		 return (m_vdeg[v]>m_vdeg[w]);
 	}
 
@@ -60,7 +61,7 @@ private:
 ////////////
 //the graph
 	ugraph& m_g;				
-	vint m_vdeg;				//initialized to 0 upon construction, cannot be changed
+	vint m_vdeg;				//initialized to 0 upon construction
 };
 
 

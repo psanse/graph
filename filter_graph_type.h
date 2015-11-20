@@ -1,4 +1,6 @@
-//filter.h : filter types for Graph<T> metaclass
+//filter.h : filter types for Graph<T> metaclass 
+// A Graph cannot be constructed on watched_bitstrings
+
 template <class T>
 struct filterGraph;		//error at compile time
 
