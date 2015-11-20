@@ -12,6 +12,7 @@
 #include <iostream>
 #include <algorithm>
 
+
 using namespace std;
 
 //vertex neighborhood info
@@ -64,13 +65,14 @@ public:
 	GraphSort						(Graph_t& gout):g(gout){}
 
 //reorders graph (it is CHANGED)
-virtual int reorder					(const vint& new_order, ostream* o = NULL);							   
-virtual	int reorder_in_place		(const vint& new_order, ostream* o=NULL);
-virtual	int reorder					(const vint& new_order, Decode& d,  ostream* o = NULL);
-virtual	int reorder_in_place		(const vint& new_order, Decode& d, ostream* o = NULL);
+	int reorder						(const vint& new_order, ostream* o = NULL);							   
+	int reorder_in_place			(const vint& new_order, ostream* o=NULL);
+	int reorder						(const vint& new_order, Decode& d,  ostream* o = NULL);
+	int reorder_in_place			(const vint& new_order, Decode& d, ostream* o = NULL);
 
 //computes a reordering [OLD_INDEX]=NEW_INDEX
-virtual	vint create_new_order		(sort_t, place_t=PLACE_LF);										
+		
+	vint create_new_order			(sort_t, place_t=PLACE_LF);										
 
 ////////////////
 // data members
@@ -465,8 +467,9 @@ int GraphSort<sparse_ugraph>::reorder_in_place(const vint& new_order, Decode& d,
   return 0;    
 }
 
-template<class Graph_t>
-vint GraphSort<Graph_t>::create_new_order (sort_t  alg, place_t place){
+template<typename Graph_t>
+vint GraphSort<Graph_t>::create_new_order (sort_t alg, place_t place)
+{
 /////////////////////////////
 // Sorts vertices by different strategies always picking them by non-decreasing index
 // PARAMS: LF (last to first) TRUE places each vertex taken at the end of the new order; if  FALSE at the beginning
