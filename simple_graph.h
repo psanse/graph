@@ -24,7 +24,7 @@
 #define __SIMPLE_GRAPH_H__
 
 #include "pablodev/bitscan/bitscan.h"
-#include "filter_graph_type.h"
+#include "filter_graph_array_type.h"
 #include <iostream>
 #include <fstream>
 #include <iomanip>

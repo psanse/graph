@@ -1,11 +1,11 @@
-//filter.h : filter types for Graph<T> metaclass 
+//filter.h : filter encoding bitstring types for Graph<T> metaclass 
 // A Graph cannot be constructed on watched_bitstrings
 
 template <class T>
-struct filterGraph;		//error at compile time
+struct filterGraphEncodingType;		//error at compile time
 
 //valid specializations
 template <>
-struct filterGraph<bitarray>{};
+struct filterGraphEncodingType<bitarray>{};
 template <>
-struct filterGraph<sparse_bitarray>{};
+struct filterGraphEncodingType<sparse_bitarray>{};

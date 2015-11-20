@@ -5,7 +5,7 @@
 #ifndef __GRAPH_SORT_H__
 #define __GRAPH_SORT_H__
 
-#include "graph.h"
+#include "../graph.h"
 #include "filter_graph_sort_type.h"			//Template Graph_t reduced to undirected types
 #include "pablodev/utils/logger.h"
 #include "decode.h"
@@ -13,6 +13,17 @@
 #include <algorithm>
 
 using namespace std;
+
+//vertex neighborhood info
+struct deg_t{
+	friend ostream & operator<<(ostream& o, const deg_t& d){ o<<d.index<<":("<<d.deg<<","<<d.deg_of_n<<")"; return o;}
+	deg_t():index(EMPTY_ELEM), deg(0), deg_of_n(0){}
+	int index;
+	int deg;
+	int deg_of_n;
+};
+
+typedef std::vector<int>				vint;	
 
 ///////////////////////////
 //
@@ -23,19 +34,9 @@ using namespace std;
 
 template <class Graph_t>
 class GraphSort{
-
-	//vertex neighborhood info
-	struct deg_t{
-		friend ostream & operator<<(ostream& o, const deg_t& d){ o<<d.index<<":("<<d.deg<<","<<d.deg_of_n<<")"; return o;}
-		deg_t():index(EMPTY_ELEM), deg(0), deg_of_n(0){}
-		int index;
-		int deg;
-		int deg_of_n;
-	};
-
-	typedef std::vector<int>				vint;	
-	typedef std::vector<deg_t>				vdeg;							
-	typedef std::vector<deg_t>::iterator	vdeg_it;
+	
+	typedef vector< deg_t >					vdeg;							
+	typedef vdeg::iterator					vdeg_it;
 		
 	//sorting criteria
 	struct degreeLess: 
@@ -58,6 +59,7 @@ class GraphSort{
 
 public:
 	enum sort_t						{MIN_WIDTH=0, MAX_WIDTH, MIN_WIDTH_MIN_TIE_STATIC};
+	enum place_t					{PLACE_FL=0, PLACE_LF};
 	static void print				(const vint& order, bool revert=false, ostream& o=std::cout);			
 	GraphSort						(Graph_t& gout):g(gout){}
 
@@ -78,8 +80,8 @@ private:
 	Graph_t& g;																									
 };
 
-template<class T>
-int GraphSort<T>::sum_of_neighbor_deg(int v){
+template<class Graph_t>
+int GraphSort<Graph_t>::sum_of_neighbor_deg(int v){
 /////////////////////////
 //Sum of degrees of neighbors to v in the current graph considered
 
@@ -94,13 +96,13 @@ int GraphSort<T>::sum_of_neighbor_deg(int v){
 return ndeg;
 }
 
-template<class T>
-int GraphSort<T>::sum_of_neighbor_deg(int v, const typename T::bb_type& sg){
+template<class Graph_t>
+int GraphSort<Graph_t>::sum_of_neighbor_deg(int v, const typename Graph_t::bb_type& sg){
 /////////////////////////
 //Sum of degrees of neighbors to v in the current graph considered,circumscribed to sg
 
 	int ndeg=0,vadj=EMPTY_ELEM;
-	typename T::bb_type nset(g.number_of_vertices());
+	typename Graph_t::bb_type nset(g.number_of_vertices());
 	AND(sg, g.get_neighbors(v), nset);
 	if(nset.init_scan(BBObject::NON_DESTRUCTIVE)!=EMPTY_ELEM){
 		while(true){
@@ -112,8 +114,8 @@ int GraphSort<T>::sum_of_neighbor_deg(int v, const typename T::bb_type& sg){
 return ndeg;
 }
 
-template<class T>
-void GraphSort<T>::print(const std::vector<int>& new_order, bool revert, ostream& o){
+template<class Graph_t>
+void GraphSort<Graph_t>::print(const std::vector<int>& new_order, bool revert, ostream& o){
 	o<<"new order: ";
 	if(revert){
 		copy(new_order.rbegin(), new_order.rend(), ostream_iterator<int>(o, " "));
@@ -123,9 +125,9 @@ void GraphSort<T>::print(const std::vector<int>& new_order, bool revert, ostream
 o<<endl;
 }
 
-template<class T>
+template<class Graph_t>
 inline
-int GraphSort<T>::reorder(const vint& new_order, ostream* o){
+int GraphSort<Graph_t>::reorder(const vint& new_order, ostream* o){
 /////////////////////
 // reordering in place
 // new order logs to "o"
@@ -141,7 +143,7 @@ int GraphSort<T>::reorder(const vint& new_order, ostream* o){
 	}
 
 	int size=g.number_of_vertices();
-	T gn(size);
+	Graph_t gn(size);
 	gn.set_name(g.get_name());
 	
 	//only for undirected graphs
@@ -162,9 +164,9 @@ int GraphSort<T>::reorder(const vint& new_order, ostream* o){
 return 0;		
 }
 
-template<class T>
+template<class Graph_t>
 inline
-int GraphSort<T>::reorder (const vint& new_order, Decode& d,  ostream* o){
+int GraphSort<Graph_t>::reorder (const vint& new_order, Decode& d,  ostream* o){
 /////////////////////
 // reordering in place and stores a way of decoding the new vertex indexes 
 // new order logs to "o"
@@ -182,7 +184,7 @@ int GraphSort<T>::reorder (const vint& new_order, Decode& d,  ostream* o){
 	}
 
 	int size=g.number_of_vertices();
-	T gn(size);
+	Graph_t gn(size);
 	gn.set_name(g.get_name());
 	
 	//only for undirected graphs
@@ -302,6 +304,22 @@ int GraphSort<sparse_ugraph>::reorder(const vint& new_order, Decode& d, ostream*
 	
 return 0;		
 }
+
+
+template<>
+inline
+int GraphSort<ugraph>::reorder_in_place(const vint& new_order, ostream* o){
+	struct this_type_is_not_available_for_GraphSort;
+	return 0;
+}
+
+template<>
+inline
+int GraphSort<ugraph>::reorder_in_place(const vint& new_order,  Decode& d,  ostream* o){
+	struct this_type_is_not_available_for_GraphSort;
+	return 0;
+}
+
 
 template<>
 inline
@@ -447,8 +465,8 @@ int GraphSort<sparse_ugraph>::reorder_in_place(const vint& new_order, Decode& d,
   return 0;    
 }
 
-template<class T>
-vint GraphSort<T>::create_new_order (sort_t  alg, place_t place){
+template<class Graph_t>
+vint GraphSort<Graph_t>::create_new_order (sort_t  alg, place_t place){
 /////////////////////////////
 // Sorts vertices by different strategies always picking them by non-decreasing index
 // PARAMS: LF (last to first) TRUE places each vertex taken at the end of the new order; if  FALSE at the beginning
@@ -460,11 +478,10 @@ vint GraphSort<T>::create_new_order (sort_t  alg, place_t place){
 // REMARKS
 // 1.Had to make tie-breaks more efficient (28/8/14)
 // 2.There was a lot to do! Basically degrees with respect to the vertex removed and support can be recomputed over the updated degrees.
-// 3.Removed NONE option, returns empty ordering (24/4/15)
-//
+
 	
-	int nV=g.number_of_vertices();
-	vint new_order(nV);
+	const int NV=g.number_of_vertices();
+	vint new_order(NV);
 	
 			
 	//remaining cases	
@@ -473,18 +490,18 @@ vint GraphSort<T>::create_new_order (sort_t  alg, place_t place){
 	vdeg degs;	
 			
 	//computes degree of vertices
-	for(int i=0; i<g.number_of_vertices(); i++){
+	for(int i=0; i<NV; i++){
 		deg_t vt;
 		vt.index=i;
 		vt.deg=g.degree(i);
 		if(alg==MIN_WIDTH_MIN_TIE_STATIC)
-				vt.deg_of_n=deg_of_neighbors(vt.index);
+				vt.deg_of_n=sum_of_neighbor_deg(vt.index);
 		degs.push_back(vt);		
 	}
 	
 	//computes order
-	BitBoardN bbn(nV);
-	bbn.set_bit(0,nV-1);
+	BitBoardN bbn(NV);
+	bbn.set_bit(0,NV-1);
 	switch(alg){
 	case MIN_WIDTH:
 		while(!degs.empty()){

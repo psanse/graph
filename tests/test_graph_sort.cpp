@@ -2,26 +2,106 @@
 #include <iostream>
 #include "google/gtest/gtest.h"
 #include "../graph.h"
-#include "../graph_sort.h"
+#include "../algorithms/graph_sort.h"
 
 using namespace std;
-TEST(Graph_sort, basic){
-
-
-	ugraph ug(10);
+TEST(Graph_sort, basic_min_width){
+	
+	cout<<"-----------------------------------"<<endl;
+	const int SIZE=10;
+	ugraph ug(SIZE);
 	ug.add_edge(0,1);
 	ug.add_edge(1,2);
 	ug.add_edge(2,3);
 	ug.add_edge(0,3);
 
-	GraphSort(ug);
+	GraphSort<ugraph> gs(ug);
+	ug.print_data(); 
+	int edges=ug.number_of_edges();
+	vector<int> new_order=gs.create_new_order(GraphSort<ugraph>::MIN_WIDTH,GraphSort<ugraph>::PLACE_FL);
+	gs.reorder(new_order, &cout);
 
+	//solution 
+	vector<int> sol(10);
+	sol[0]=6; sol[1]=7;  sol[2]=8;  sol[3]=9; 
+	int i=4;
+	int index=0;
+	while(i<10){
+		sol[i]=index; 
+		i++; index++;
+	}
 
+	cout<<endl; ug.print_data(); cout<<endl;
+	EXPECT_EQ(SIZE, ug.number_of_vertices());
+	EXPECT_EQ(edges, ug.number_of_edges(false));
+	EXPECT_EQ(sol, new_order);
+
+	cout<<"-----------------------------------"<<endl;
+}
+
+TEST(Graph_sort_sparse, basic_min_width){
 	
+	cout<<"-----------------------------------"<<endl;
+	const int SIZE=10;
+	sparse_ugraph ug(SIZE);
+	ug.add_edge(0,1);
+	ug.add_edge(1,2);
+	ug.add_edge(2,3);
+	ug.add_edge(0,3);
 
-	//vertex 2 is the only neighbor of 1 and has degree 2
-	/*EXPECT_EQ(1,vec.size());
-	EXPECT_EQ(1,count(vec.begin(), vec.end(), 2));*/
+	GraphSort<sparse_ugraph> gs(ug);
+	ug.print_data(); 
+	int edges=ug.number_of_edges();
+	vector<int> new_order=gs.create_new_order(GraphSort<sparse_ugraph>::MIN_WIDTH,GraphSort<sparse_ugraph>::PLACE_FL);
+	gs.reorder(new_order, &cout);
+
+	//solution 
+	vector<int> sol(10);
+	sol[0]=6; sol[1]=7;  sol[2]=8;  sol[3]=9; 
+	int i=4;
+	int index=0;
+	while(i<10){
+		sol[i]=index; 
+		i++; index++;
+	}
+
+	cout<<endl; ug.print_data(); cout<<endl;
+	EXPECT_EQ(SIZE, ug.number_of_vertices());
+	EXPECT_EQ(edges, ug.number_of_edges(false));
+	EXPECT_EQ(sol, new_order);
+
+	cout<<"-----------------------------------"<<endl;
+}
+
+TEST(Graph_sort, basic_max_width){
+	
+	cout<<"-----------------------------------"<<endl;
+	const int SIZE=10;
+	ugraph ug(SIZE);
+	ug.add_edge(0,1);
+	ug.add_edge(1,2);
+	ug.add_edge(2,3);
+	ug.add_edge(0,3);
+
+	GraphSort<ugraph> gs(ug);
+	ug.print_data(); 
+	int edges=ug.number_of_edges();
+	vector<int> new_order=gs.create_new_order(GraphSort<ugraph>::MAX_WIDTH,GraphSort<ugraph>::PLACE_FL);
+	gs.reorder(new_order, &cout);
+
+	//solution 
+	vector<int> sol(10);
+	for(int i=0; i<10; i++){
+		sol[i]=i;
+	}
+	sol[1]=2; sol[2]=1;		//consequence of degenerate sorting
+	
+	cout<<endl; ug.print_data(); cout<<endl;
+	EXPECT_EQ(SIZE, ug.number_of_vertices());
+	EXPECT_EQ(edges, ug.number_of_edges(false));
+	EXPECT_EQ(sol, new_order);
+
+	cout<<"-----------------------------------"<<endl;
 }
 
 //TEST(Graph_sort, graph_from_file){
@@ -29,42 +109,7 @@ TEST(Graph_sort, basic){
 //// Undirected graphs read by directed graph class (all edges are non symmetrical)
 //	
 //	graph g1("brock200_1.clq");
-//	graph g2("brock200_2.clq");
-//	graph g3("brock200_3.clq");
-//	graph g4("brock200_4.clq");
-//
-//	//Number of (directed) edges
-//	EXPECT_EQ(14834,g1.number_of_edges());
-//	EXPECT_EQ(9876,g2.number_of_edges());
-//	EXPECT_EQ(12048,g3.number_of_edges());
-//	EXPECT_EQ(13089,g4.number_of_edges());
-//
-//	//is directed
-//	EXPECT_NE(g1.is_edge(3,2),g1.is_edge(2,3));
-//	EXPECT_NE(g1.is_edge(4,2),g1.is_edge(2,4));
-//
-//	//Number of vertices
-//	EXPECT_EQ(200,g1.number_of_vertices());
-//	EXPECT_EQ(200,g2.number_of_vertices());
-//	EXPECT_EQ(200,g3.number_of_vertices());
-//	EXPECT_EQ(200,g4.number_of_vertices());
-//
-//	g1.make_bidirected();
-//	g2.make_bidirected();
-//	g3.make_bidirected();
-//	g4.make_bidirected();
-//
-//	//Number of (bidirected) edges	
-//	EXPECT_EQ(2*14834,g1.number_of_edges());
-//	EXPECT_EQ(2*9876,g2.number_of_edges());
-//	EXPECT_EQ(2*12048,g3.number_of_edges());
-//	EXPECT_EQ(2*13089,g4.number_of_edges());
-//
-//	//Name
-//	EXPECT_STREQ("brock200_1.clq",g1.get_name().c_str());
-//	EXPECT_STREQ("brock200_2.clq",g2.get_name().c_str());
-//	EXPECT_STREQ("brock200_3.clq",g3.get_name().c_str());
-//	EXPECT_STREQ("brock200_4.clq",g4.get_name().c_str());
+//	//*** TODO **
 //}
 
 
