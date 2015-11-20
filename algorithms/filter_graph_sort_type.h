@@ -2,10 +2,10 @@
 //Graphs which are not undirected cannot be sorted
 
 template <class Graph_t>
-struct filterGraphSort;		//error at compile time
+struct filterGraphSortType;		//error at compile time
 
 //valid specializations
 template <>
-struct filterGraphSort<ugraph>{};
+struct filterGraphSortType<ugraph>{};
 template <>
-struct filterGraph<sparse_ugraph>{};
+struct filterGraphSortType<sparse_ugraph>{};

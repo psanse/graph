@@ -33,7 +33,7 @@ typedef std::vector<int>				vint;
 ////////////////////////////
 
 template <class Graph_t>
-class GraphSort{
+class GraphSort: public filterGraphSortType{
 	
 	typedef vector< deg_t >					vdeg;							
 	typedef vdeg::iterator					vdeg_it;
