@@ -24,7 +24,7 @@
 #define __SIMPLE_GRAPH_H__
 
 #include "pablodev/bitscan/bitscan.h"
-#include "filter_graph_array_type.h"
+#include "filter_graph_encoding_type.h"
 #include <iostream>
 #include <fstream>
 #include <iomanip>
@@ -37,7 +37,7 @@
 #include <string.h>
 
 template<class T>
-class Graph: public filterGraph<T>{
+class Graph: public filterGraphEncodingType<T>{
 public:
 	typedef T bb_type;
 	template <class B>
