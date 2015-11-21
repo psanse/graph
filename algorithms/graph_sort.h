@@ -71,8 +71,10 @@ public:
 	int reorder_in_place			(const vint& new_order, Decode& d, ostream* o = NULL);
 
 //computes a reordering [OLD_INDEX]=NEW_INDEX
-		
-	vint create_new_order			(sort_t, place_t=PLACE_LF);										
+	vint new_order					(sort_t, place_t=PLACE_LF);	
+
+//computes a reordering of the subgraph not accesible by vertex index
+	vint new_subg_order		(sort_t, typename Graph_t::bb_type&,  place_t=PLACE_LF);							//cannot be used as input to REORDER functions
 
 ////////////////
 // data members
@@ -322,7 +324,6 @@ int GraphSort<ugraph>::reorder_in_place(const vint& new_order,  Decode& d,  ostr
 	return 0;
 }
 
-
 template<>
 inline
 int GraphSort<sparse_ugraph>::reorder_in_place(const vint& new_order, ostream* o){
@@ -468,7 +469,7 @@ int GraphSort<sparse_ugraph>::reorder_in_place(const vint& new_order, Decode& d,
 }
 
 template<typename Graph_t>
-vint GraphSort<Graph_t>::create_new_order (sort_t alg, place_t place)
+vint GraphSort<Graph_t>::new_order (sort_t alg, place_t place)
 {
 /////////////////////////////
 // Sorts vertices by different strategies always picking them by non-decreasing index
@@ -481,12 +482,10 @@ vint GraphSort<Graph_t>::create_new_order (sort_t alg, place_t place)
 // REMARKS
 // 1.Had to make tie-breaks more efficient (28/8/14)
 // 2.There was a lot to do! Basically degrees with respect to the vertex removed and support can be recomputed over the updated degrees.
-
-	
+		
 	const int NV=g.number_of_vertices();
 	vint new_order(NV);
-	
-			
+				
 	//remaining cases	
 	int k; 
 	(place==PLACE_LF)? k=g.number_of_vertices()-1 : k=0;
@@ -557,6 +556,101 @@ vint GraphSort<Graph_t>::create_new_order (sort_t alg, place_t place)
 return new_order;
 }
 
+template<typename Graph_t>
+vint GraphSort<Graph_t>::new_subg_order (sort_t alg, typename Graph_t::bb_type& sg,  place_t place){
+/////////////////
+// Returns a list of vertices in a subgraph (as a bitstring of vertices) ordered by non decreasing param-alg criteria
+// CANNOT be used in REORDER functions
+//
+// date of creation: 9/3/15
+// date of refactoring: 21/11/15
+//
+// On ERROR: The empty graph
+//
+// COMMENTS: **EXPERIMENTAL***
+// 1-All sorting criteria are referred solely to the subgraph passed
+// 2-NOT OPTIMIZED (sparse_graph specialization, erase elements in vectors, recompute degree at each iteration)
+// 3-The returned list CANNOT be accessed by vertex index
+
+// TODO: Other possible orderings (absolute and degenerate)
+
+	deg_t vt;
+	vdeg degs;
+	
+	//consistency check
+	if(sg.is_empty()){
+		LOG_WARNING("new_subg_order: empty subgraph");
+		return vint();
+	}
+	
+	//computes initial relevant degree information of vertices
+	sg.init_scan(bbo::NON_DESTRUCTIVE);
+	while(true){
+		vt.index=sg.next_bit();
+		if(vt.index==EMPTY_ELEM) break;
+
+		vt.deg=g.degree(vt.index, sg);
+		if(alg==MIN_DEG_DEGEN_TIE_STATIC){
+			vt.deg_of_n=sum_of_neighbor_deg(vt.index, sg);
+		}
+		degs.push_back(vt);	
+	}
+	
+	//computes direct order
+	vint new_order;
+	typename Graph_t::bb_type bbn(sg); 
+	switch(alg){
+	case MIN_DEG_DEGEN:
+		while(!degs.empty()){
+			vdeg_it it1=min_element(degs.begin(), degs.end(), degreeLess());
+			new_order.push_back(it1->index);
+			bbn.erase_bit(it1->index);
+			degs.erase(it1);
+
+			//recompute degrees
+			for(int i=0; i<degs.size(); i++){
+				degs[i].deg=g.degree(degs[i].index, bbn);
+			}
+		}
+		break;
+	case MAX_DEG_DEGEN:
+		while(!degs.empty()){
+			vdeg_it it1=max_element(degs.begin(), degs.end(), degreeLess());
+			new_order.push_back(it1->index);
+			bbn.erase_bit(it1->index);
+			degs.erase(it1);
+
+			//recompute degrees
+			for(int i=0; i<degs.size(); i++){
+				degs[i].deg=g.degree(degs[i].index, bbn);
+			}
+		}
+		break;
+	case MIN_DEG_DEGEN_TIE_STATIC:
+		//degrees of supporters fixed at the beginning of the search
+		while(!degs.empty()){
+			vdeg_it it1=min_element(degs.begin(), degs.end(), degreeWithTieBreakLess());
+			new_order.push_back(it1->index);
+			bbn.erase_bit(it1->index);
+			degs.erase(it1);
+			
+			//recompute degrees
+			for(int i=0; i<degs.size(); i++){
+				degs[i].deg=g.degree(degs[i].index, bbn);
+			}
+		}
+		break;
+	default:
+		LOG_ERROR("new_subg_order: unknown ordering strategy");
+		return vint();
+	}
+
+	//reverse for place parameter consistency
+	if(place==PLACE_LF)
+		reverse(new_order.begin(), new_order.end());
+		
+return new_order;
+}
 
 
 #endif

@@ -3,6 +3,7 @@
 #include "google/gtest/gtest.h"
 #include "../graph.h"
 #include "../algorithms/graph_sort.h"
+#include "pablodev/utils/common.h"
 
 using namespace std;
 TEST(Graph_sort, basic_min_width){
@@ -18,7 +19,7 @@ TEST(Graph_sort, basic_min_width){
 	GraphSort<ugraph> gs(ug);
 	ug.print_data(); 
 	int edges=ug.number_of_edges();
-	vector<int> new_order=gs.create_new_order(GraphSort<ugraph>::MIN_DEG_DEGEN,GraphSort<ugraph>::PLACE_FL);
+	vector<int> new_order=gs.new_order(GraphSort<ugraph>::MIN_DEG_DEGEN,GraphSort<ugraph>::PLACE_FL);
 	gs.reorder(new_order, &cout);
 
 	//solution 
@@ -52,7 +53,7 @@ TEST(Graph_sort_sparse, basic_min_width){
 	GraphSort<sparse_ugraph> gs(ug);
 	ug.print_data(); 
 	int edges=ug.number_of_edges();
-	vector<int> new_order=gs.create_new_order(GraphSort<sparse_ugraph>::MIN_DEG_DEGEN,GraphSort<sparse_ugraph>::PLACE_FL);
+	vector<int> new_order=gs.new_order(GraphSort<sparse_ugraph>::MIN_DEG_DEGEN,GraphSort<sparse_ugraph>::PLACE_FL);
 	gs.reorder(new_order, &cout);
 
 	//solution 
@@ -86,7 +87,7 @@ TEST(Graph_sort, basic_max_width){
 	GraphSort<ugraph> gs(ug);
 	ug.print_data(); 
 	int edges=ug.number_of_edges();
-	vector<int> new_order=gs.create_new_order(GraphSort<ugraph>::MAX_DEG_DEGEN, GraphSort<ugraph>::PLACE_FL);
+	vector<int> new_order=gs.new_order(GraphSort<ugraph>::MAX_DEG_DEGEN, GraphSort<ugraph>::PLACE_FL);
 	gs.reorder(new_order, &cout);
 
 	//solution 
@@ -99,6 +100,31 @@ TEST(Graph_sort, basic_max_width){
 	cout<<endl; ug.print_data(); cout<<endl;
 	EXPECT_EQ(SIZE, ug.number_of_vertices());
 	EXPECT_EQ(edges, ug.number_of_edges(false));
+	EXPECT_EQ(sol, new_order);
+
+	cout<<"-----------------------------------"<<endl;
+}
+
+TEST(Graph_sort, basic_subgraph){
+	
+	cout<<"-----------------------------------"<<endl;
+	const int SIZE=10;
+	ugraph ug(SIZE);
+	ug.add_edge(0,1);
+	ug.add_edge(1,2);
+	ug.add_edge(2,3);
+	ug.add_edge(0,3);
+	bitarray subgraph(10);
+	subgraph.set_bit(1,5);
+
+	GraphSort<ugraph> gs(ug);
+	ug.print_data(); 
+	vector<int> new_order=gs.new_subg_order(GraphSort<ugraph>::MIN_DEG_DEGEN, subgraph, GraphSort<ugraph>::PLACE_FL);
+	
+	//solution 
+	vector<int> sol(subgraph.popcn64());
+	sol[0]=4; sol[1]=5; //isolani first
+	sol[2]=1; sol[3]=2; sol[4]=3;
 	EXPECT_EQ(sol, new_order);
 
 	cout<<"-----------------------------------"<<endl;
