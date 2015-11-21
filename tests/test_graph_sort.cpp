@@ -18,7 +18,7 @@ TEST(Graph_sort, basic_min_width){
 	GraphSort<ugraph> gs(ug);
 	ug.print_data(); 
 	int edges=ug.number_of_edges();
-	vector<int> new_order=gs.create_new_order(GraphSort<ugraph>::MIN_WIDTH,GraphSort<ugraph>::PLACE_FL);
+	vector<int> new_order=gs.create_new_order(GraphSort<ugraph>::MIN_DEG_DEGEN,GraphSort<ugraph>::PLACE_FL);
 	gs.reorder(new_order, &cout);
 
 	//solution 
@@ -52,7 +52,7 @@ TEST(Graph_sort_sparse, basic_min_width){
 	GraphSort<sparse_ugraph> gs(ug);
 	ug.print_data(); 
 	int edges=ug.number_of_edges();
-	vector<int> new_order=gs.create_new_order(GraphSort<sparse_ugraph>::MIN_WIDTH,GraphSort<sparse_ugraph>::PLACE_FL);
+	vector<int> new_order=gs.create_new_order(GraphSort<sparse_ugraph>::MIN_DEG_DEGEN,GraphSort<sparse_ugraph>::PLACE_FL);
 	gs.reorder(new_order, &cout);
 
 	//solution 
@@ -86,7 +86,7 @@ TEST(Graph_sort, basic_max_width){
 	GraphSort<ugraph> gs(ug);
 	ug.print_data(); 
 	int edges=ug.number_of_edges();
-	vector<int> new_order=gs.create_new_order(GraphSort<ugraph>::MAX_WIDTH,GraphSort<ugraph>::PLACE_FL);
+	vector<int> new_order=gs.create_new_order(GraphSort<ugraph>::MAX_DEG_DEGEN, GraphSort<ugraph>::PLACE_FL);
 	gs.reorder(new_order, &cout);
 
 	//solution 

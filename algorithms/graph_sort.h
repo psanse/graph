@@ -35,7 +35,7 @@ typedef std::vector<int>				vint;
 
 template <class Graph_t>
 class GraphSort: public filterGraphSortType<Graph_t>{
-	
+protected:
 	typedef vector< deg_t >					vdeg;							
 	typedef vdeg::iterator					vdeg_it;
 		
@@ -59,7 +59,7 @@ class GraphSort: public filterGraphSortType<Graph_t>{
 	};
 
 public:
-	enum sort_t						{MIN_WIDTH=0, MAX_WIDTH, MIN_WIDTH_MIN_TIE_STATIC};
+	enum sort_t						{MIN_DEG_DEGEN=0, MAX_DEG_DEGEN, MIN_DEG_DEGEN_TIE_STATIC};
 	enum place_t					{PLACE_FL=0, PLACE_LF};
 	static void print				(const vint& order, bool revert=false, ostream& o=std::cout);			
 	GraphSort						(Graph_t& gout):g(gout){}
@@ -497,16 +497,17 @@ vint GraphSort<Graph_t>::create_new_order (sort_t alg, place_t place)
 		deg_t vt;
 		vt.index=i;
 		vt.deg=g.degree(i);
-		if(alg==MIN_WIDTH_MIN_TIE_STATIC)
+		if(alg==MIN_DEG_DEGEN_TIE_STATIC)
 				vt.deg_of_n=sum_of_neighbor_deg(vt.index);
 		degs.push_back(vt);		
 	}
-	
+
+		
 	//computes order
 	BitBoardN bbn(NV);
 	bbn.set_bit(0,NV-1);
 	switch(alg){
-	case MIN_WIDTH:
+	case MIN_DEG_DEGEN:
 		while(!degs.empty()){
 			vdeg_it it1=min_element(degs.begin(), degs.end(), degreeLess());
 			new_order[it1->index]=k;
@@ -520,7 +521,7 @@ vint GraphSort<Graph_t>::create_new_order (sort_t alg, place_t place)
 			}
 		}
 		break;
-	case MAX_WIDTH:
+	case MAX_DEG_DEGEN:
 		while(!degs.empty()){
 			vdeg_it it1=max_element(degs.begin(), degs.end(), degreeLess());
 			new_order[it1->index]=k;
@@ -534,7 +535,7 @@ vint GraphSort<Graph_t>::create_new_order (sort_t alg, place_t place)
 			}
 		}
 		break;
-	case MIN_WIDTH_MIN_TIE_STATIC:
+	case MIN_DEG_DEGEN_TIE_STATIC:
 		while(!degs.empty()){
 			vdeg_it it_sel=min_element(degs.begin(), degs.end(), degreeWithTieBreakLess());
 			int v_sel=it_sel->index;
