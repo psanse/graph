@@ -83,7 +83,7 @@ public:
 
 ////////////////
 // data members
-private:
+protected:
 	int sum_of_neighbor_deg			(int v);																	//computes support(sum of degree of neighbors)
 	int sum_of_neighbor_deg			(int v, const typename Graph_t::bb_type& subgraph);
 	Graph_t& g;																									
