@@ -166,6 +166,48 @@ TEST(Graph_sort, basic_kcore){
 }
 
 
+TEST(Graph_sort, Decode){
+////////////
+// decoding a sequence of orderings
+
+	cout<<"Order: Decode------------------------"<<endl;
+	ugraph ug(106);    
+    ug.add_edge(1, 2);
+    ug.add_edge(1, 3);
+    ug.add_edge(1, 4);
+	ug.add_edge(78, 5);
+	ug.print_data();
+		
+	ugraph ug1(ug);
+
+//MIN WIDTH algorithm
+	cout<<endl<<"init min width----------------------"<<endl;
+	GraphSort<ugraph> o(ug1);
+	vint vres=o.new_order(GraphSort<ugraph>::MIN_DEG_DEGEN, GraphSort<ugraph>::PLACE_LF); cout<<endl;
+	copy(vres.begin(), vres.end(), ostream_iterator<int>(cout, " "));
+	o.reorder(vres);
+
+	Decode d;
+	d.reverse_in_place(vres);
+	d.insert_ordering(vres);
+
+	vint vlist;
+	vlist.push_back(105);
+	vlist.push_back(104);
+	vlist.push_back(103);
+	vlist.push_back(102);
+	vlist.push_back(101);
+	vlist.push_back(100);
+	
+	vint dec=d.decode_list(vlist);
+	cout<<endl;
+	com::stl::print_collection(dec);
+			
+	cout<<"--------------------------------------"<<endl;
+}
+
+
+
 //TEST(Graph_sort, graph_from_file){
 /////////////////////
 //// Undirected graphs read by directed graph class (all edges are non symmetrical)
