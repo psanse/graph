@@ -130,6 +130,42 @@ TEST(Graph_sort, basic_subgraph){
 	cout<<"-----------------------------------"<<endl;
 }
 
+
+TEST(Graph_sort, basic_kcore){
+	cout<<"-----------------------------------"<<endl;
+	const int SIZE=10;
+	ugraph ug(SIZE);
+	ug.add_edge(0,1);
+	ug.add_edge(1,2);
+	ug.add_edge(2,3);
+	ug.add_edge(0,3);
+
+	GraphSort<ugraph> gs(ug);
+	ug.print_data(); 
+	
+	//non decreasing kcore ordering
+	vector<int> new_order=gs.new_order(GraphSort<ugraph>::KCORE,GraphSort<ugraph>::PLACE_FL);
+	com::stl::print_collection<vector<int>>(new_order); cout<<endl;
+
+	vector<int> sol(10);
+	sol[0]=6; sol[1]=7;  sol[2]=8;  sol[3]=9; 
+	sol[4]=0; sol[5]=1;  sol[6]=2;  sol[7]=3; sol[8]=4; sol[9]=5;
+
+	EXPECT_EQ(sol, new_order);
+
+	//non increasing kcore ordering (standard for clique)
+	new_order=gs.new_order(GraphSort<ugraph>::KCORE,GraphSort<ugraph>::PLACE_LF);
+	com::stl::print_collection<vector<int>>(new_order);
+
+	sol[0]=3; sol[1]=2;  sol[2]=1;  sol[3]=0; 
+	sol[4]=9; sol[5]=8;  sol[6]=7;  sol[7]=6; sol[8]=5; sol[9]=4;
+
+	EXPECT_EQ(sol, new_order);
+
+	cout<<"-----------------------------------"<<endl;
+}
+
+
 //TEST(Graph_sort, graph_from_file){
 /////////////////////
 //// Undirected graphs read by directed graph class (all edges are non symmetrical)

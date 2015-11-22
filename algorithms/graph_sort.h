@@ -6,8 +6,10 @@
 #define __GRAPH_SORT_H__
 
 #include "../graph.h"
+#include "../kcore.h"
 #include "filter_graph_sort_type.h"			//Template Graph_t reduced to undirected types
 #include "pablodev/utils/logger.h"
+#include "pablodev/utils/common.h"
 #include "decode.h"
 #include <iostream>
 #include <algorithm>
@@ -59,7 +61,7 @@ protected:
 	};
 
 public:
-	enum sort_t						{MIN_DEG_DEGEN=0, MAX_DEG_DEGEN, MIN_DEG_DEGEN_TIE_STATIC};
+	enum sort_t						{MIN_DEG_DEGEN=0, MAX_DEG_DEGEN, MIN_DEG_DEGEN_TIE_STATIC, KCORE};
 	enum place_t					{PLACE_FL=0, PLACE_LF};
 	static void print				(const vint& order, bool revert=false, ostream& o=std::cout);			
 	GraphSort						(Graph_t& gout):g(gout){}
@@ -72,7 +74,10 @@ public:
 
 //computes a reordering [OLD_INDEX]=NEW_INDEX
 	vint new_order					(sort_t, place_t=PLACE_LF);	
+private:
+	vint new_order_kcore			(place_t=PLACE_LF);
 
+public:
 //computes a reordering of the subgraph not accesible by vertex index
 	vint new_subg_order		(sort_t, typename Graph_t::bb_type&,  place_t=PLACE_LF);							//cannot be used as input to REORDER functions
 
@@ -482,15 +487,19 @@ vint GraphSort<Graph_t>::new_order (sort_t alg, place_t place)
 // REMARKS
 // 1.Had to make tie-breaks more efficient (28/8/14)
 // 2.There was a lot to do! Basically degrees with respect to the vertex removed and support can be recomputed over the updated degrees.
-		
+	
+	
+	//KCORE ordering special case: does not requiere degree computation
+	if(alg==KCORE){
+		return new_order_kcore(place);
+	}
+			
+	//remaining cases: all require explicit degree computation
 	const int NV=g.number_of_vertices();
 	vint new_order(NV);
-				
-	//remaining cases	
+	vdeg degs;	
 	int k; 
 	(place==PLACE_LF)? k=g.number_of_vertices()-1 : k=0;
-	vdeg degs;	
-			
 	//computes degree of vertices
 	for(int i=0; i<NV; i++){
 		deg_t vt;
@@ -554,6 +563,35 @@ vint GraphSort<Graph_t>::new_order (sort_t alg, place_t place)
 		vint().swap(new_order);
 	}
 return new_order;
+}
+
+template<typename Graph_t>
+vint GraphSort<Graph_t>::new_order_kcore (place_t place){
+/////////////////////
+// Ret
+	int nV=g.number_of_vertices();
+	vint new_order(nV);
+
+	KCore<Graph_t> kc(g);
+	kc.kcore();
+	const vint& kco=kc.get_kcore_ordering();		//ordered by non decreasing
+	
+////////////////
+//translates to [OLD_INDEX]=NEW_INDEX
+	int l=0;
+	if(place==PLACE_LF){				//the standard use in clique
+		for(vint::const_reverse_iterator it=kco.rbegin(); it!=kco.rend(); ++it){
+			new_order[*it]=l++;
+		}
+	}else{
+		//PLACE_FL
+		LOG_WARNING("new_order_kcore: non typical ordering by increasing kcore");
+		for(vint::const_iterator it=kco.begin(); it!=kco.end(); ++it){
+			new_order[*it]=l++;
+		}
+	}
+
+	return new_order;
 }
 
 template<typename Graph_t>
