@@ -349,6 +349,9 @@ int GraphSort<Graph_t>::reorder_composite (vpair& lord, Decode& d,  ostream* o =
 		case MIN_DEG_DEGEN_TIE_STATIC:
 			reorder(new_order(MIN_DEG_DEGEN_TIE_STATIC,ord.second),d,o);
 			break;
+		case NONE:
+			reorder(new_order(NONE,ord.second),d,o);
+			break;
 		//others
 		default:
 			LOG_ERROR("GraphSort::reorder_composite: unknown algorithm");

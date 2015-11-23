@@ -432,11 +432,19 @@ TEST(Graph_composite_sort, basic){
     
     GraphSort<ugraph> o(ug);
     vector<pair<GraphSort<ugraph>::sort_t, GraphSort<ugraph>::place_t> > lo;
-    lo.push_back(pair<GraphSort<ugraph>::sort_t, GraphSort<ugraph>::place_t>(GraphSort<ugraph>::MAX_DEG_DEGEN,GraphSort<ugraph>::PLACE_FL));
-    lo.push_back(pair<GraphSort<ugraph>::sort_t, GraphSort<ugraph>::place_t>(GraphSort<ugraph>::MAX_DEG_DEGEN,GraphSort<ugraph>::PLACE_FL));
+    lo.push_back(pair<GraphSort<ugraph>::sort_t, GraphSort<ugraph>::place_t>(GraphSort<ugraph>::NONE,GraphSort<ugraph>::PLACE_LF));
+    lo.push_back(pair<GraphSort<ugraph>::sort_t, GraphSort<ugraph>::place_t>(GraphSort<ugraph>::NONE,GraphSort<ugraph>::PLACE_LF));
 
     Decode d;
-    o.reorder_composite(lo,d,&cout); cout<<endl;
+    o.reorder_composite(lo,d,NULL);
+	vector<int> vindex(6);
+	for(int i=0; i<vindex.size(); i++){
+		vindex[i]=i;
+	}
+	vector<int> vdec=d.decode_list(vindex);		//same ordering expected since the graph remains the original one
+	EXPECT_EQ(vindex, vdec);
+	
+	
     cout<<"--------------------------------------"<<endl;
 }
 
