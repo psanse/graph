@@ -61,7 +61,7 @@ protected:
 	};
 
 public:
-	enum sort_t						{MIN_DEG_DEGEN=0, MAX_DEG_DEGEN, MIN_DEG_DEGEN_TIE_STATIC, KCORE};
+	enum sort_t						{MIN_DEG_DEGEN=0, MAX_DEG_DEGEN, MIN_DEG_DEGEN_TIE_STATIC, KCORE, NONE};
 	enum place_t					{PLACE_FL=0, PLACE_LF};
 	static void print				(const vint& order, bool revert=false, ostream& o=std::cout);			
 	GraphSort						(Graph_t& gout):g(gout){}
@@ -559,8 +559,19 @@ vint GraphSort<Graph_t>::new_order (sort_t alg, place_t place)
 			}
 		}
 		break;
+	case NONE:							//to implement reverse ordering
+		//warning for petition in which vertex order remains as is but is computed nevertheless
+		if(place==PLACE_FL){
+			LOG_WARNING("GraphSort<Graph_t>::new_order: NONE + PLACE_FL->order unchanged but will be processed");
+		}
+
+		for(int i=0; i<new_order.size(); i++){
+			new_order[i]=k;
+			(place==PLACE_LF)? k-- : k++;
+		}
+		break;
 	default:
-		LOG_ERROR("create_new_order: unknown ordering strategy");
+		LOG_ERROR("GraphSort<Graph_t>::new_order: unknown ordering strategy");
 		vint().swap(new_order);
 	}
 return new_order;
@@ -677,6 +688,19 @@ vint GraphSort<Graph_t>::new_subg_order (sort_t alg, typename Graph_t::bb_type& 
 			for(int i=0; i<degs.size(); i++){
 				degs[i].deg=g.degree(degs[i].index, bbn);
 			}
+		}
+		break;
+	case NONE:
+		//warning for petition in which vertex order of subgraph remains as is but is computed nevertheless
+		if(place==PLACE_FL){
+			LOG_WARNING("GraphSort<Graph_t>::new_subg_order: NONE + PLACE_FL->order unchanged but will be processed");
+		}
+		
+		sg.init_scan(bbo::NON_DESTRUCTIVE);
+		while(true){
+			vt.index=sg.next_bit();
+			if(vt.index==EMPTY_ELEM) break;
+			new_order.push_back(vt.index);
 		}
 		break;
 	default:
