@@ -417,6 +417,29 @@ TEST(GraphSort_in_place, reorder_simple){
 }
 
 
+TEST(Graph_composite_sort, basic){
+////////////
+// decoding a sequence of orderings
+
+    cout<<"Graph_composite_sort: basic------------------------"<<endl;
+    ugraph ug(6);    
+    ug.add_edge(1, 2);
+    ug.add_edge(1, 3);
+    ug.add_edge(1, 4);
+    ug.add_edge(4, 5);
+    ug.print_data();
+
+    
+    GraphSort<ugraph> o(ug);
+    vector<pair<GraphSort<ugraph>::sort_t, GraphSort<ugraph>::place_t> > lo;
+    lo.push_back(pair<GraphSort<ugraph>::sort_t, GraphSort<ugraph>::place_t>(GraphSort<ugraph>::MAX_DEG_DEGEN,GraphSort<ugraph>::PLACE_FL));
+    lo.push_back(pair<GraphSort<ugraph>::sort_t, GraphSort<ugraph>::place_t>(GraphSort<ugraph>::MAX_DEG_DEGEN,GraphSort<ugraph>::PLACE_FL));
+
+    Decode d;
+    o.reorder_composite(lo,d,&cout); cout<<endl;
+    cout<<"--------------------------------------"<<endl;
+}
+
 
 
 

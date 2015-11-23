@@ -63,6 +63,10 @@ protected:
 public:
 	enum sort_t						{MIN_DEG_DEGEN=0, MAX_DEG_DEGEN, MIN_DEG_DEGEN_TIE_STATIC, KCORE, NONE};
 	enum place_t					{PLACE_FL=0, PLACE_LF};
+
+typedef vector< pair<sort_t, place_t> >				vpair;
+typedef typename vpair::iterator					vpair_it;
+
 	static void print				(const vint& order, bool revert=false, ostream& o=std::cout);			
 	GraphSort						(Graph_t& gout):g(gout){}
 
@@ -80,6 +84,10 @@ private:
 public:
 //computes a reordering of the subgraph not accesible by vertex index
 	vint new_subg_order		(sort_t, typename Graph_t::bb_type&,  place_t=PLACE_LF);							//cannot be used as input to REORDER functions
+	
+///////////////
+//composite orderings
+	int reorder_composite			(vpair&, Decode& d,  ostream* o = NULL);
 
 ////////////////
 // data members
@@ -314,6 +322,43 @@ int GraphSort<sparse_ugraph>::reorder(const vint& new_order, Decode& d, ostream*
 	
 return 0;		
 }
+
+template<class Graph_t>
+inline
+int GraphSort<Graph_t>::reorder_composite (vpair& lord, Decode& d,  ostream* o = NULL){
+//////////////////
+// iterates over the list and reorders the graph accordingly
+// stores in decoder each change in format [NEW_INDEX]=OLD_INDEX
+// for a later decoding
+//
+// RETURNS -1 if ERROR, 0 if OK
+
+	d.clear();
+	
+	for(vpair_it it=lord.begin(); it!=lord.end(); it++){
+		pair<sort_t, place_t> ord=*it;
+
+		//sort
+		switch(ord.first){
+		case MIN_DEG_DEGEN:
+			reorder(new_order(MIN_DEG_DEGEN,ord.second),d,o);
+			break;
+		case MAX_DEG_DEGEN:
+			reorder(new_order(MAX_DEG_DEGEN,ord.second),d,o);
+			break;
+		case MIN_DEG_DEGEN_TIE_STATIC:
+			reorder(new_order(MIN_DEG_DEGEN_TIE_STATIC,ord.second),d,o);
+			break;
+		//others
+		default:
+			LOG_ERROR("GraphSort::reorder_composite: unknown algorithm");
+			return -1;
+		}
+	}
+
+	return 0;	//OK
+}
+
 
 
 template<>
