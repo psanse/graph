@@ -449,7 +449,56 @@ TEST(Graph_composite_sort, basic){
 }
 
 
+TEST(Graph_sort,sel_by_deg_basic ){
+	
+	cout<<"Graph_sort::sel_by_deg_basic----------------------------------"<<endl;
+	const int SIZE=10;
+	ugraph ug(SIZE);
+	ug.add_edge(0,1);
+	ug.add_edge(1,2);
+	ug.add_edge(2,3);
+	ug.add_edge(0,3);
+	ug.print_data(); 
+	
 
+	GraphSort<ugraph> gs(ug);
+///////////////
+// GRAPH
+
+	int v=gs.sel_v_by_deg(GraphSort<ugraph>::PICK_MINFL);
+	EXPECT_EQ(4,v);
+
+	v=gs.sel_v_by_deg(GraphSort<ugraph>::PICK_MINLF);
+	EXPECT_EQ(9,v);
+
+	v=gs.sel_v_by_deg(GraphSort<ugraph>::PICK_MAXLF);
+	EXPECT_EQ(3,v);
+
+	v=gs.sel_v_by_deg(GraphSort<ugraph>::PICK_MAXFL);
+	EXPECT_EQ(0,v);
+
+///////////////
+// SUBGRAPH
+	bitarray sg(10);
+	sg.set_bit(0);
+	sg.set_bit(1);
+	sg.set_bit(3);
+	sg.set_bit(9);
+		
+	v=gs.sel_v_by_deg(sg, GraphSort<ugraph>::PICK_MINFL);
+	EXPECT_EQ(9,v);
+
+	v=gs.sel_v_by_deg(sg, GraphSort<ugraph>::PICK_MINLF);
+	EXPECT_EQ(9,v);
+
+	v=gs.sel_v_by_deg(sg, GraphSort<ugraph>::PICK_MAXFL);
+	EXPECT_EQ(0,v);
+
+	v=gs.sel_v_by_deg(sg, GraphSort<ugraph>::PICK_MAXLF);
+	EXPECT_EQ(0,v);
+	
+	cout<<"-----------------------------------"<<endl;
+}
 
 
 
