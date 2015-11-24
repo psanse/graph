@@ -77,7 +77,7 @@ template <class T>
 bool operator == (const Ugraph<T>& lhs, const Ugraph<T>& rhs){
 	for(int i=0; i<lhs.m_size-1; i++)
 		for(int j=i+1; j<lhs.m_size; j++){
-			if( lhs.is_adjacent(i,j) && !rhs.is_adjacent(i,j) ){
+			if( lhs.is_edge(i,j) && !rhs.is_edge(i,j) ){
 				return false;
 			}
 		}

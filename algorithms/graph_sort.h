@@ -37,7 +37,7 @@ typedef std::vector<int>				vint;
 
 template <class Graph_t>
 class GraphSort: public filterGraphSortType<Graph_t>{
-	static const int GRAPH_SORT_INFINITE_NUM=0x1FFFFFFF;
+	static const int GRAPH_SORT_INFINITE=0x1FFFFFFF;
 protected:
 	typedef vector< deg_t >					vdeg;							
 	typedef vdeg::iterator					vdeg_it;
@@ -65,8 +65,6 @@ public:
 	enum sort_t						{MIN_DEG_DEGEN=0, MAX_DEG_DEGEN, MIN_DEG_DEGEN_TIE_STATIC, KCORE, NONE};
 	enum place_t					{PLACE_FL=0, PLACE_LF};
 	enum pick_t						{PICK_MINFL=0, PICK_MINLF, PICK_MAXFL, PICK_MAXLF, PICK_FL, PICK_LF, PICK_MINABSFL,PICK_MAXABSFL, PICK_MINABSLF, PICK_MAXABSLF};
-	enum deg_tiebreak_t				{ MINFL_TB=0, MAXFL_TB, MINLF_TB, MAXLF_TB, MINFL_REM, MINLF_REM, 
-									  MAXFL_REM, MAXLF_REM, MINFL_REM_EXCEPT_TIED, MINLF_REM_EXCEPT_TIED, MAXFL_REM_EXCEPT_TIED, MAXLF_REM_EXCEPT_TIED};	
 
 typedef vector< pair<sort_t, place_t> >				vpair;
 typedef typename vpair::iterator					vpair_it;
@@ -81,33 +79,38 @@ typedef typename vpair::iterator					vpair_it;
 	int reorder_in_place			(const vint& new_order, Decode& d, ostream* o = NULL);
 
 //computes a reordering [OLD_INDEX]=NEW_INDEX
-	vint new_order					(sort_t, place_t=PLACE_LF);	
+	vint new_order					(sort_t alg, place_t=PLACE_LF);																						//use by default
+
+	//iterative variants (use get_v)
+	vint new_order					(pick_t, place_t=PLACE_LF);	
+	vint new_order					(const typename Graph_t::bb_type& sg, pick_t, place_t=PLACE_LF);													//reorders induced subgrapg sg
+	vint new_order					(const typename Graph_t::bb_type& sgfrom, const typename Graph_t::bb_type& sgref, pick_t, place_t, bool is_degen);	
 private:
 	vint new_order_kcore			(place_t=PLACE_LF);
 
 public:
 //computes a reordering of the subgraph not accesible by vertex index
-	vint new_subg_order		(sort_t, typename Graph_t::bb_type&,  place_t=PLACE_LF);							//cannot be used as input to REORDER functions
+	vint new_subg_order				(sort_t, typename Graph_t::bb_type&,  place_t=PLACE_LF);					//cannot be used as input to REORDER functions
 	
 ///////////////
 //composite orderings
 	int reorder_composite			(vpair&, Decode& d,  ostream* o = NULL);
 	
+///////////////
+// degree computation 
 	int sum_of_neighbor_deg			(int v);																	//computes support(sum of degree of neighbors)
 	int sum_of_neighbor_deg			(int v, const typename Graph_t::bb_type& subgraph);
 
 ////////////////
 // vertex selection primitives
-	int sel_v_by_deg				(pick_t=PICK_MINFL);	
-	int	sel_v_by_deg				(typename Graph_t::bb_type& sg, pick_t=PICK_MINFL);	
-
-
+	int get_v						(pick_t=PICK_MINFL);	
+	int	get_v						(typename Graph_t::bb_type& sg, pick_t=PICK_MINFL);	
+	int get_v						(typename Graph_t::bb_type& sgfrom, const typename Graph_t::bb_type& sgref, pick_t=PICK_MINFL);
 
 protected:
 ////////////////
 // data members
 	
-
 	Graph_t& g;																									
 };
 
@@ -640,6 +643,100 @@ return new_order;
 }
 
 template<typename Graph_t>
+vint GraphSort<Graph_t>::new_order (pick_t pick, place_t place){
+//////////////////////
+// Determines new order in format [OLD_VERTEX]= NEW_VERTEX incrementally (vertex by vertex)
+// using the primitives for vertex selection
+
+	int v_sel=EMPTY_ELEM; int k=0;
+	int NV=g.number_of_vertices();
+	vint res(NV);
+	typename Graph_t::bb_type sg(NV);
+	sg.set_bit(0, NV-1);
+	
+	(place==PLACE_LF)?  k=NV-1 : k=0;
+	while(true){
+		v_sel=get_v(sg, pick);
+		if(v_sel==EMPTY_ELEM) break;
+		res[v_sel]=k;
+		(place==PLACE_LF)?  k-- : k++;
+	sg.erase_bit(v_sel);
+	}
+	
+return res;
+}
+
+template<typename Graph_t>
+vint GraphSort<Graph_t>::new_order	(const typename Graph_t::bb_type& sg_in, pick_t pick, place_t place){
+////////////////////////
+// Reorders INDUCED SUBGRAPH by sg_in (returns a full ordering which may be used in a reorder operation)
+
+	int v_sel=EMPTY_ELEM; int k=0;
+	int NV=g.number_of_vertices();
+	vint res;
+	typename Graph_t::bb_type sg(sg_in);
+	
+	//inits vector with current order
+	for(int i=0; i<NV; i++){
+		res.push_back(i);
+	}
+
+	//get vertex list to reorder
+	vint vsg;
+	sg.to_vector(vsg);
+
+	(place==PLACE_LF)?  k=vsg.size()-1 : k=0;
+	while(1){
+		v_sel=get_v(sg, pick);
+		if(v_sel==EMPTY_ELEM) break;
+		(place==PLACE_LF)?  res[v_sel]=vsg[k--] : res[v_sel]=vsg[k++];			//swaps related vertices
+	sg.erase_bit(v_sel);
+	}
+
+return res;
+}
+
+template<typename Graph_t>
+vint GraphSort<Graph_t>::new_order (const typename Graph_t::bb_type& sgfrom_in, const typename Graph_t::bb_type& sgref_in, pick_t pick, place_t place, bool is_degen){
+///////////////////////
+// Reorders, by the usual criteria, vertices in sg in connection to subgraph INDUCED by sgref
+// Typically sgref should include sg but this is not strictly neccessary
+// 
+// PARAMS
+//  BOOL is_degen: TRUE removes vertex selected in sg from sgref after being picked 
+//				    User case for non degenerate (is_degen=FALSE) is a max or min degree ordering which takes 
+//					into account all vertices in each choice.
+//
+// User case: reorder a subset of vertices using global structure criteria
+
+	int v_sel=EMPTY_ELEM; int k=0;
+	int NV=g.number_of_vertices();
+	vint res;
+	typename Graph_t::bb_type sgfrom(sgfrom_in);
+	typename Graph_t::bb_type sgref(sgref_in);
+	
+	//inits vector with current order
+	for(int i=0; i<NV; i++){
+		res.push_back(i);
+	}
+
+	//get vertex list to reorder
+	vint vsg;
+	sgfrom.to_vector(vsg);
+
+	(place==PLACE_LF)?  k=vsg.size()-1 : k=0;
+	while(true){
+		v_sel=get_v(sgfrom,sgref,pick);  
+		if(v_sel==EMPTY_ELEM) break;
+		(place==PLACE_LF)?  res[v_sel]=vsg[k--] : res[v_sel]=vsg[k++];			//swaps related vertices
+		sgfrom.erase_bit(v_sel);
+		if(is_degen) sgref.erase_bit(v_sel);									//implements degeneracy by modifying the reference induced subgraph
+	}
+
+	return res;
+}
+
+template<typename Graph_t>
 vint GraphSort<Graph_t>::new_order_kcore (place_t place){
 /////////////////////
 // Ret
@@ -784,7 +881,7 @@ return new_order;
 //
 ////////////////
 template<typename Graph_t>
-int GraphSort<Graph_t>::sel_v_by_deg(pick_t pick){
+int GraphSort<Graph_t>::get_v(pick_t pick){
 ///////////////////
 // Picks vertex from the graph according to pick strategy (ties lexicographical)
 // Breaks ties first found
@@ -795,7 +892,7 @@ int GraphSort<Graph_t>::sel_v_by_deg(pick_t pick){
 	
 	switch(pick){
 	case PICK_MINFL:	
-		opt_val=GRAPH_SORT_INFINITE_NUM;
+		opt_val=GRAPH_SORT_INFINITE;
 		for(int v=0; v<NV; v++){
 			int deg=g.degree(v);
 			if(deg<opt_val){
@@ -805,7 +902,7 @@ int GraphSort<Graph_t>::sel_v_by_deg(pick_t pick){
 		}
 		break;
 	case PICK_MINLF:	
-		opt_val=GRAPH_SORT_INFINITE_NUM;
+		opt_val=GRAPH_SORT_INFINITE;
 		for(int v=NV-1; v>=0; v--){
 			int deg=g.degree(v);
 			if(deg<opt_val){
@@ -842,7 +939,7 @@ int GraphSort<Graph_t>::sel_v_by_deg(pick_t pick){
 }
 
 template<typename Graph_t>
-int GraphSort<Graph_t>::sel_v_by_deg(typename Graph_t::bb_type& sg, pick_t pick){	
+int GraphSort<Graph_t>::get_v(typename Graph_t::bb_type& sg, pick_t pick){	
 // ////////////////////
 // Picks vertex from induced subgraph according to pick degree criteria (ties lexicographical)
 //
@@ -854,7 +951,7 @@ int GraphSort<Graph_t>::sel_v_by_deg(typename Graph_t::bb_type& sg, pick_t pick)
 
 	switch(pick){
 	case PICK_MINFL:	
-		opt_val=GRAPH_SORT_INFINITE_NUM;
+		opt_val=GRAPH_SORT_INFINITE;
 		sg.init_scan(bbo::NON_DESTRUCTIVE);
 		while(true){
 			int v=sg.next_bit();
@@ -867,7 +964,7 @@ int GraphSort<Graph_t>::sel_v_by_deg(typename Graph_t::bb_type& sg, pick_t pick)
 		}
 		break;
 	case PICK_MINLF:	
-		opt_val=GRAPH_SORT_INFINITE_NUM;
+		opt_val=GRAPH_SORT_INFINITE;
 		sg.init_scan(bbo::NON_DESTRUCTIVE_REVERSE);
 		while(true){
 			int v=sg.previous_bit();
@@ -908,6 +1005,83 @@ int GraphSort<Graph_t>::sel_v_by_deg(typename Graph_t::bb_type& sg, pick_t pick)
 	default:
 		LOG_ERROR("GraphSort<Graph_t>::sel_v_by_deg: unknown vertex selection criteria");
 	}
+
+	return v_sel;
+}
+
+template<typename Graph_t>
+int GraphSort<Graph_t>::get_v (typename Graph_t::bb_type& sgfrom, const typename Graph_t::bb_type& sgref, pick_t pick){
+////////////////////////////
+// Picks vertex from induced subgraph sgfrom according to pick degree criteria (ties lexicographical)
+// related to induced graph sgref (sgfrom and sgref are not necessarily disjoint) 
+	
+	int opt_val;
+	int v_sel=EMPTY_ELEM; 
+	int NV=g.number_of_vertices();
+	typename Graph_t::bb_type neigh(NV);
+
+
+	switch(pick){
+	case PICK_MINFL:	
+		opt_val=GRAPH_SORT_INFINITE;
+		sgfrom.init_scan(bbo::NON_DESTRUCTIVE);
+		while(true){
+			int v=sgfrom.next_bit();
+			if(v==EMPTY_ELEM) break;
+			AND(g.get_neighbors(v), sgref, neigh);
+			int deg=neigh.popcn64();
+			if(deg<opt_val){
+				opt_val=deg;
+				v_sel=v;
+			}
+		}
+		break;
+	case PICK_MINLF:	
+		opt_val=GRAPH_SORT_INFINITE;
+		sgfrom.init_scan(bbo::NON_DESTRUCTIVE_REVERSE);
+		while(true){
+			int v=sgfrom.previous_bit();
+			if(v==EMPTY_ELEM) break;
+			AND(g.get_neighbors(v), sgref, neigh);
+			int deg=neigh.popcn64();
+			if(deg<opt_val){
+				opt_val=deg;
+				v_sel=v;
+			}
+		}
+		break;
+	case PICK_MAXFL:	
+		opt_val=-1;
+		sgfrom.init_scan(bbo::NON_DESTRUCTIVE);
+		while(true){
+			int v=sgfrom.next_bit();
+			if(v==EMPTY_ELEM) break;
+			AND(g.get_neighbors(v),sgref, neigh);
+			int deg=neigh.popcn64();
+			if(deg>opt_val){
+				opt_val=deg;
+				v_sel=v;
+			}
+		}
+		break;
+	case PICK_MAXLF:	
+		opt_val=-1;
+		sgfrom.init_scan(bbo::NON_DESTRUCTIVE_REVERSE);
+		while(true){
+			int v=sgfrom.previous_bit();
+			if(v==EMPTY_ELEM) break;
+			AND(g.get_neighbors(v),sgref, neigh);
+			int deg=neigh.popcn64();
+			if(deg>opt_val){
+				opt_val=deg;
+				v_sel=v;
+			}
+		}
+		break;
+	default:
+		LOG_ERROR("GraphSort<Graph_t>::sel_v_by_deg: unknown vertex selection criteria");
+	}
+	
 
 	return v_sel;
 }

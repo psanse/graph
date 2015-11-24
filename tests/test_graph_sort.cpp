@@ -449,9 +449,9 @@ TEST(Graph_composite_sort, basic){
 }
 
 
-TEST(Graph_sort,sel_by_deg_basic ){
+TEST(Graph_sort,get_v_basic ){
 	
-	cout<<"Graph_sort::sel_by_deg_basic----------------------------------"<<endl;
+	cout<<"Graph_sort::get_v_basic----------------------------------"<<endl;
 	const int SIZE=10;
 	ugraph ug(SIZE);
 	ug.add_edge(0,1);
@@ -465,16 +465,16 @@ TEST(Graph_sort,sel_by_deg_basic ){
 ///////////////
 // GRAPH
 
-	int v=gs.sel_v_by_deg(GraphSort<ugraph>::PICK_MINFL);
+	int v=gs.get_v(GraphSort<ugraph>::PICK_MINFL);
 	EXPECT_EQ(4,v);
 
-	v=gs.sel_v_by_deg(GraphSort<ugraph>::PICK_MINLF);
+	v=gs.get_v(GraphSort<ugraph>::PICK_MINLF);
 	EXPECT_EQ(9,v);
 
-	v=gs.sel_v_by_deg(GraphSort<ugraph>::PICK_MAXLF);
+	v=gs.get_v(GraphSort<ugraph>::PICK_MAXLF);
 	EXPECT_EQ(3,v);
 
-	v=gs.sel_v_by_deg(GraphSort<ugraph>::PICK_MAXFL);
+	v=gs.get_v(GraphSort<ugraph>::PICK_MAXFL);
 	EXPECT_EQ(0,v);
 
 ///////////////
@@ -485,22 +485,124 @@ TEST(Graph_sort,sel_by_deg_basic ){
 	sg.set_bit(3);
 	sg.set_bit(9);
 		
-	v=gs.sel_v_by_deg(sg, GraphSort<ugraph>::PICK_MINFL);
+	v=gs.get_v(sg, GraphSort<ugraph>::PICK_MINFL);
 	EXPECT_EQ(9,v);
 
-	v=gs.sel_v_by_deg(sg, GraphSort<ugraph>::PICK_MINLF);
+	v=gs.get_v(sg, GraphSort<ugraph>::PICK_MINLF);
 	EXPECT_EQ(9,v);
 
-	v=gs.sel_v_by_deg(sg, GraphSort<ugraph>::PICK_MAXFL);
+	v=gs.get_v(sg, GraphSort<ugraph>::PICK_MAXFL);
 	EXPECT_EQ(0,v);
 
-	v=gs.sel_v_by_deg(sg, GraphSort<ugraph>::PICK_MAXLF);
+	v=gs.get_v(sg, GraphSort<ugraph>::PICK_MAXLF);
 	EXPECT_EQ(0,v);
 	
 	cout<<"-----------------------------------"<<endl;
 }
 
 
+TEST(Graph_sort,new_order_primitives_basic){
+	cout<<"Graph_sort::new_order_basic_primitives----------------------------------"<<endl;
+	const int SIZE=10;
+	ugraph ug(SIZE);
+	ug.add_edge(0,1);
+	ug.add_edge(1,2);
+	ug.add_edge(2,3);
+	ug.add_edge(0,3);
+	ug.print_data(); 
+	
+	ugraph ug1(ug);
+
+	//sorting with primitives
+	GraphSort<ugraph> gs(ug1);
+	vint order=gs.new_order(GraphSort<ugraph>::PICK_MINFL, GraphSort<ugraph>::PLACE_LF);		//Equivalent to MIN_DEG_DEGEN
+	vint sol(SIZE);
+	sol[0]=3; sol[1]=2; sol[2]=1; sol[3]=0; sol[4]=9;
+	sol[5]=8; sol[6]=7; sol[7]=6; sol[8]=5; sol[9]=4;
+	EXPECT_EQ(sol, order);
+
+	//MIN_DEG_DEGEN, supposed to be equivalent
+	gs.reorder(order);
+	ugraph ug2(ug);
+	GraphSort<ugraph> gs2(ug2);
+	gs2.reorder(gs.new_order(GraphSort<ugraph>::MIN_DEG_DEGEN));
+
+	EXPECT_EQ(ug2.number_of_edges(), ug1.number_of_edges());	
+	EXPECT_EQ(ug2, ug1);
+	
+	cout<<"-----------------------------------"<<endl;
+}
+
+
+TEST(Graph_sort,new_order_primitives_sg_I){
+	cout<<"Graph_sort::new_order_primitives_sg_I----------------------------------"<<endl;
+	const int SIZE=10;
+	ugraph ug(SIZE);
+	ug.add_edge(0,1);
+	ug.add_edge(1,2);
+	ug.add_edge(2,3);
+	ug.add_edge(0,3);
+	ug.print_data(); 
+	
+	ugraph ug1(ug);
+
+	//sorting with primitives
+	GraphSort<ugraph> gs(ug1);
+	bitarray sg(SIZE);
+
+	//will only sort G[{0,...,3}]
+	sg.set_bit(0,3);
+
+	vint order=gs.new_order(sg, GraphSort<ugraph>::PICK_MINFL, GraphSort<ugraph>::PLACE_LF);				
+	com::stl::print_collection(order);
+
+	vint sol(SIZE);
+	sol[0]=3; sol[1]=2; sol[2]=1; sol[3]=0; sol[4]=4;
+	sol[5]=5; sol[6]=6; sol[7]=7; sol[8]=8; sol[9]=9;
+	EXPECT_EQ(sol, order);
+
+	order=gs.new_order(sg, GraphSort<ugraph>::PICK_MINFL, GraphSort<ugraph>::PLACE_FL);						//equivalent to NO SORTING
+	com::stl::print_collection(order);
+
+	sol[0]=0; sol[1]=1; sol[2]=2; sol[3]=3; sol[4]=4;
+	sol[5]=5; sol[6]=6; sol[7]=7; sol[8]=8; sol[9]=9;
+	EXPECT_EQ(sol, order);
+
+	cout<<"-----------------------------------"<<endl;
+}
+
+
+TEST(Graph_sort,new_order_primitives_sg_II){
+	cout<<"Graph_sort::new_order_primitives_sg_II----------------------------------"<<endl;
+	const int SIZE=10;
+	ugraph ug(SIZE);
+	ug.add_edge(0,1);
+	ug.add_edge(1,2);
+	ug.add_edge(2,3);
+	ug.add_edge(0,3);
+	ug.print_data(); 
+	
+	ugraph ug1(ug);
+
+	//sorting with primitives
+	GraphSort<ugraph> gs(ug1);
+	bitarray sg(SIZE); bitarray sgV(SIZE);
+
+	//will only sort G[{0,...,3}]
+	sg.set_bit(0,3);
+	sgV.set_bit(0, SIZE-1);
+
+	vint order=gs.new_order(sg, sgV, GraphSort<ugraph>::PICK_MINFL, GraphSort<ugraph>::PLACE_LF, true);		//Equivalent to MIN_DEGEN (see sg_I test)				
+	com::stl::print_collection(order);
+
+	vint sol(SIZE);
+	sol[0]=3; sol[1]=2; sol[2]=1; sol[3]=0; sol[4]=4;
+	sol[5]=5; sol[6]=6; sol[7]=7; sol[8]=8; sol[9]=9;
+	EXPECT_EQ(sol, order);
+
+	
+	cout<<"-----------------------------------"<<endl;
+}
 
 //TEST(Graph_sort, graph_from_file){
 /////////////////////
