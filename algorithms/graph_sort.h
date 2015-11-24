@@ -45,7 +45,7 @@ protected:
 	//sorting criteria
 	struct degreeLess: 
 		public binary_function<deg_t, deg_t, bool>{
-			bool operator() (deg_t i,deg_t j) { 
+			bool operator() (deg_t i,deg_t j) const { 
 				return (i.deg<j.deg);
 			} 
 	};
