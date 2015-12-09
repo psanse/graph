@@ -575,14 +575,14 @@ vint GraphSort<Graph_t>::new_order (gbbs::sort_t alg, gbbs::place_t place)
 	vint new_order(NV);
 	vdeg degs;	
 	int k; 
-	(place==PLACE_LF)? k=g.number_of_vertices()-1 : k=0;
+	(place==gbbs::PLACE_LF)? k=g.number_of_vertices()-1 : k=0;
 	
 	//computes degree of vertices
 	for(int i=0; i<NV; i++){
 		deg_t vt;
 		vt.index=i;
 		vt.deg=g.degree(i);
-		if(alg==MIN_DEG_DEGEN_TIE_STATIC)
+		if(alg==gbbs::MIN_DEG_DEGEN_TIE_STATIC)
 				vt.deg_of_n=sum_of_neighbor_deg(vt.index);
 		degs.push_back(vt);		
 	}
@@ -592,11 +592,11 @@ vint GraphSort<Graph_t>::new_order (gbbs::sort_t alg, gbbs::place_t place)
 	BitBoardN bbn(NV);
 	bbn.set_bit(0,NV-1);
 	switch(alg){
-	case MIN_DEG_DEGEN:
+	case gbbs::MIN_DEG_DEGEN:
 		while(!degs.empty()){
 			vdeg_it it1=min_element(degs.begin(), degs.end(), degreeLess());
 			new_order[it1->index]=k;
-			(place==PLACE_LF)? k-- : k++;
+			(place==gbbs::PLACE_LF)? k-- : k++;
 			bbn.erase_bit(it1->index);
 			degs.erase(it1);
 
@@ -606,11 +606,11 @@ vint GraphSort<Graph_t>::new_order (gbbs::sort_t alg, gbbs::place_t place)
 			}
 		}
 		break;
-	case MAX_DEG_DEGEN:
+	case gbbs::MAX_DEG_DEGEN:
 		while(!degs.empty()){
 			vdeg_it it1=max_element(degs.begin(), degs.end(), degreeLess());
 			new_order[it1->index]=k;
-			(place==PLACE_LF)? k-- : k++;
+			(place==gbbs::PLACE_LF)? k-- : k++;
 			bbn.erase_bit(it1->index);
 			degs.erase(it1);
 
@@ -620,12 +620,12 @@ vint GraphSort<Graph_t>::new_order (gbbs::sort_t alg, gbbs::place_t place)
 			}
 		}
 		break;
-	case MIN_DEG_DEGEN_TIE_STATIC:
+	case gbbs::MIN_DEG_DEGEN_TIE_STATIC:
 		while(!degs.empty()){
 			vdeg_it it_sel=min_element(degs.begin(), degs.end(), degreeWithTieBreakLess());
 			int v_sel=it_sel->index;
 			new_order[v_sel]=k;
-			(place==PLACE_LF)? k-- : k++;
+			(place==gbbs::PLACE_LF)? k-- : k++;
 			bbn.erase_bit(v_sel);
 			degs.erase(it_sel);
 							
@@ -635,15 +635,15 @@ vint GraphSort<Graph_t>::new_order (gbbs::sort_t alg, gbbs::place_t place)
 			}
 		}
 		break;
-	case NONE:							//to implement reverse ordering
+	case gbbs::NONE:							//to implement reverse ordering
 		//warning for petition in which vertex order remains as is but is computed nevertheless
-		if(place==PLACE_FL){
+		if(place==gbbs::PLACE_FL){
 			LOG_WARNING("GraphSort<Graph_t>::new_order: NONE + PLACE_FL->order unchanged but will be processed");
 		}
 
 		for(int i=0; i<new_order.size(); i++){
 			new_order[i]=k;
-			(place==PLACE_LF)? k-- : k++;
+			(place==gbbs::PLACE_LF)? k-- : k++;
 		}
 		break;
 	default:
@@ -670,7 +670,7 @@ vint GraphSort<Graph_t>::new_order (gbbs::pick_t pick, gbbs::place_t place){
 		v_sel=get_v(sg, pick);
 		if(v_sel==EMPTY_ELEM) break;
 		res[v_sel]=k;
-		(place==PLACE_LF)?  k-- : k++;
+		(place==gbbs::PLACE_LF)?  k-- : k++;
 	sg.erase_bit(v_sel);
 	}
 	
@@ -696,11 +696,11 @@ vint GraphSort<Graph_t>::new_order	(const typename Graph_t::bb_type& sg_in, gbbs
 	vint vsg;
 	sg.to_vector(vsg);
 
-	(place==PLACE_LF)?  k=vsg.size()-1 : k=0;
+	(place==gbbs::PLACE_LF)?  k=vsg.size()-1 : k=0;
 	while(1){
 		v_sel=get_v(sg, pick);
 		if(v_sel==EMPTY_ELEM) break;
-		(place==PLACE_LF)?  res[v_sel]=vsg[k--] : res[v_sel]=vsg[k++];			//swaps related vertices
+		(place==gbbs::PLACE_LF)?  res[v_sel]=vsg[k--] : res[v_sel]=vsg[k++];			//swaps related vertices
 	sg.erase_bit(v_sel);
 	}
 
@@ -735,11 +735,11 @@ vint GraphSort<Graph_t>::new_order (const typename Graph_t::bb_type& sgfrom_in, 
 	vint vsg;
 	sgfrom.to_vector(vsg);
 
-	(place==PLACE_LF)?  k=vsg.size()-1 : k=0;
+	(place==gbbs::PLACE_LF)?  k=vsg.size()-1 : k=0;
 	while(true){
 		v_sel=get_v(sgfrom,sgref,pick);  
 		if(v_sel==EMPTY_ELEM) break;
-		(place==PLACE_LF)?  res[v_sel]=vsg[k--] : res[v_sel]=vsg[k++];			//swaps related vertices
+		(place==gbbs::PLACE_LF)?  res[v_sel]=vsg[k--] : res[v_sel]=vsg[k++];			//swaps related vertices
 		sgfrom.erase_bit(v_sel);
 		if(is_degen) sgref.erase_bit(v_sel);									//implements degeneracy by modifying the reference induced subgraph
 	}
@@ -761,7 +761,7 @@ vint GraphSort<Graph_t>::new_order_kcore (gbbs::place_t place){
 ////////////////
 //translates to [OLD_INDEX]=NEW_INDEX
 	int l=0;
-	if(place==PLACE_LF){				//the standard use in clique
+	if(place==gbbs::PLACE_LF){				//the standard use in clique
 		for(vint::const_reverse_iterator it=kco.rbegin(); it!=kco.rend(); ++it){
 			new_order[*it]=l++;
 		}
@@ -810,7 +810,7 @@ vint GraphSort<Graph_t>::new_subg_order (gbbs::sort_t alg, typename Graph_t::bb_
 		if(vt.index==EMPTY_ELEM) break;
 
 		vt.deg=g.degree(vt.index, sg);
-		if(alg==MIN_DEG_DEGEN_TIE_STATIC){
+		if(alg==gbbs::MIN_DEG_DEGEN_TIE_STATIC){
 			vt.deg_of_n=sum_of_neighbor_deg(vt.index, sg);
 		}
 		degs.push_back(vt);	
@@ -820,7 +820,7 @@ vint GraphSort<Graph_t>::new_subg_order (gbbs::sort_t alg, typename Graph_t::bb_
 	vint new_order;
 	typename Graph_t::bb_type bbn(sg); 
 	switch(alg){
-	case MIN_DEG_DEGEN:
+	case gbbs::MIN_DEG_DEGEN:
 		while(!degs.empty()){
 			vdeg_it it1=min_element(degs.begin(), degs.end(), degreeLess());
 			new_order.push_back(it1->index);
@@ -833,7 +833,7 @@ vint GraphSort<Graph_t>::new_subg_order (gbbs::sort_t alg, typename Graph_t::bb_
 			}
 		}
 		break;
-	case MAX_DEG_DEGEN:
+	case gbbs::MAX_DEG_DEGEN:
 		while(!degs.empty()){
 			vdeg_it it1=max_element(degs.begin(), degs.end(), degreeLess());
 			new_order.push_back(it1->index);
@@ -846,7 +846,7 @@ vint GraphSort<Graph_t>::new_subg_order (gbbs::sort_t alg, typename Graph_t::bb_
 			}
 		}
 		break;
-	case MIN_DEG_DEGEN_TIE_STATIC:
+	case gbbs::MIN_DEG_DEGEN_TIE_STATIC:
 		//degrees of supporters fixed at the beginning of the search
 		while(!degs.empty()){
 			vdeg_it it1=min_element(degs.begin(), degs.end(), degreeWithTieBreakLess());
@@ -860,9 +860,9 @@ vint GraphSort<Graph_t>::new_subg_order (gbbs::sort_t alg, typename Graph_t::bb_
 			}
 		}
 		break;
-	case NONE:
+	case gbbs::NONE:
 		//warning for petition in which vertex order of subgraph remains as is but is computed nevertheless
-		if(place==PLACE_FL){
+		if(place==gbbs::PLACE_FL){
 			LOG_WARNING("GraphSort<Graph_t>::new_subg_order: NONE + PLACE_FL->order unchanged but will be processed");
 		}
 		
@@ -879,7 +879,7 @@ vint GraphSort<Graph_t>::new_subg_order (gbbs::sort_t alg, typename Graph_t::bb_
 	}
 
 	//reverse for place parameter consistency
-	if(place==PLACE_LF)
+	if(place==gbbs::PLACE_LF)
 		reverse(new_order.begin(), new_order.end());
 		
 return new_order;
@@ -902,7 +902,7 @@ int GraphSort<Graph_t>::get_v(gbbs::pick_t pick){
 	int NV=g.number_of_vertices();
 	
 	switch(pick){
-	case PICK_MINFL:	
+	case gbbs::PICK_MINFL:	
 		opt_val=GRAPH_SORT_INFINITE;
 		for(int v=0; v<NV; v++){
 			int deg=g.degree(v);
@@ -912,7 +912,7 @@ int GraphSort<Graph_t>::get_v(gbbs::pick_t pick){
 			}
 		}
 		break;
-	case PICK_MINLF:	
+	case gbbs::PICK_MINLF:	
 		opt_val=GRAPH_SORT_INFINITE;
 		for(int v=NV-1; v>=0; v--){
 			int deg=g.degree(v);
@@ -922,7 +922,7 @@ int GraphSort<Graph_t>::get_v(gbbs::pick_t pick){
 			}
 		}
 		break;
-	case PICK_MAXFL:	
+	case gbbs::PICK_MAXFL:	
 		opt_val=-1;
 		for(int v=0; v<NV; v++){
 			int deg=g.degree(v);
@@ -932,7 +932,7 @@ int GraphSort<Graph_t>::get_v(gbbs::pick_t pick){
 			}
 		}
 		break;
-	case PICK_MAXLF:	
+	case gbbs::PICK_MAXLF:	
 		opt_val=-1;
 		for(int v=NV-1; v>=0; v--){
 			int deg=g.degree(v);
@@ -961,7 +961,7 @@ int GraphSort<Graph_t>::get_v(typename Graph_t::bb_type& sg, gbbs::pick_t pick){
 	int NV=g.number_of_vertices();
 
 	switch(pick){
-	case PICK_MINFL:	
+	case gbbs::PICK_MINFL:	
 		opt_val=GRAPH_SORT_INFINITE;
 		sg.init_scan(bbo::NON_DESTRUCTIVE);
 		while(true){
@@ -974,7 +974,7 @@ int GraphSort<Graph_t>::get_v(typename Graph_t::bb_type& sg, gbbs::pick_t pick){
 			}
 		}
 		break;
-	case PICK_MINLF:	
+	case gbbs::PICK_MINLF:	
 		opt_val=GRAPH_SORT_INFINITE;
 		sg.init_scan(bbo::NON_DESTRUCTIVE_REVERSE);
 		while(true){
@@ -987,7 +987,7 @@ int GraphSort<Graph_t>::get_v(typename Graph_t::bb_type& sg, gbbs::pick_t pick){
 			}
 		}
 		break;
-	case PICK_MAXFL:	
+	case gbbs::PICK_MAXFL:	
 		opt_val=-1;
 		sg.init_scan(bbo::NON_DESTRUCTIVE);
 		while(true){
@@ -1000,7 +1000,7 @@ int GraphSort<Graph_t>::get_v(typename Graph_t::bb_type& sg, gbbs::pick_t pick){
 			}
 		}
 		break;
-	case PICK_MAXLF:	
+	case gbbs::PICK_MAXLF:	
 		opt_val=-1;
 		sg.init_scan(bbo::NON_DESTRUCTIVE_REVERSE);
 		while(true){
@@ -1033,7 +1033,7 @@ int GraphSort<Graph_t>::get_v (typename Graph_t::bb_type& sgfrom, const typename
 
 
 	switch(pick){
-	case PICK_MINFL:	
+	case gbbs::PICK_MINFL:	
 		opt_val=GRAPH_SORT_INFINITE;
 		sgfrom.init_scan(bbo::NON_DESTRUCTIVE);
 		while(true){
@@ -1047,7 +1047,7 @@ int GraphSort<Graph_t>::get_v (typename Graph_t::bb_type& sgfrom, const typename
 			}
 		}
 		break;
-	case PICK_MINLF:	
+	case gbbs::PICK_MINLF:	
 		opt_val=GRAPH_SORT_INFINITE;
 		sgfrom.init_scan(bbo::NON_DESTRUCTIVE_REVERSE);
 		while(true){
@@ -1061,7 +1061,7 @@ int GraphSort<Graph_t>::get_v (typename Graph_t::bb_type& sgfrom, const typename
 			}
 		}
 		break;
-	case PICK_MAXFL:	
+	case gbbs::PICK_MAXFL:	
 		opt_val=-1;
 		sgfrom.init_scan(bbo::NON_DESTRUCTIVE);
 		while(true){
@@ -1075,7 +1075,7 @@ int GraphSort<Graph_t>::get_v (typename Graph_t::bb_type& sgfrom, const typename
 			}
 		}
 		break;
-	case PICK_MAXLF:	
+	case gbbs::PICK_MAXLF:	
 		opt_val=-1;
 		sgfrom.init_scan(bbo::NON_DESTRUCTIVE_REVERSE);
 		while(true){
