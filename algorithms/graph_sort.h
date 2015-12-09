@@ -17,6 +17,19 @@
 
 using namespace std;
 
+
+///////////////
+//
+// namespace for GRAPH sort basic (enum) types
+//
+////////////////
+namespace gbbs{
+	enum sort_t						{MIN_DEG_DEGEN=0, MAX_DEG_DEGEN, MIN_DEG_DEGEN_TIE_STATIC, KCORE, NONE};
+	enum place_t					{PLACE_FL=0, PLACE_LF};
+	enum pick_t						{PICK_MINFL=0, PICK_MINLF, PICK_MAXFL, PICK_MAXLF, PICK_FL, PICK_LF, PICK_MINABSFL,PICK_MAXABSFL, PICK_MINABSLF, PICK_MAXABSLF};
+};
+
+
 //vertex neighborhood info
 struct deg_t{
 	friend ostream & operator<<(ostream& o, const deg_t& d){ o<<d.index<<":("<<d.deg<<","<<d.deg_of_n<<")"; return o;}
@@ -62,12 +75,10 @@ protected:
 	};
 
 public:
-	enum sort_t						{MIN_DEG_DEGEN=0, MAX_DEG_DEGEN, MIN_DEG_DEGEN_TIE_STATIC, KCORE, NONE};
-	enum place_t					{PLACE_FL=0, PLACE_LF};
-	enum pick_t						{PICK_MINFL=0, PICK_MINLF, PICK_MAXFL, PICK_MAXLF, PICK_FL, PICK_LF, PICK_MINABSFL,PICK_MAXABSFL, PICK_MINABSLF, PICK_MAXABSLF};
+	
 
-typedef vector< pair<sort_t, place_t> >				vpair;
-typedef typename vpair::iterator					vpair_it;
+typedef vector< pair<gbbs::sort_t, gbbs::place_t> >				vpair;
+typedef typename vpair::iterator								vpair_it;
 
 	static void print				(const vint& order, bool revert=false, ostream& o=std::cout);			
 	GraphSort						(Graph_t& gout):g(gout){}
@@ -79,18 +90,18 @@ typedef typename vpair::iterator					vpair_it;
 	int reorder_in_place			(const vint& new_order, Decode& d, ostream* o = NULL);
 
 //computes a reordering [OLD_INDEX]=NEW_INDEX
-	vint new_order					(sort_t alg, place_t=PLACE_LF);																						//use by default
+	vint new_order					(gbbs::sort_t alg, gbbs::place_t=PLACE_LF);																						//use by default
 
 	//iterative variants (use get_v)
-	vint new_order					(pick_t, place_t=PLACE_LF);	
-	vint new_order					(const typename Graph_t::bb_type& sg, pick_t, place_t=PLACE_LF);													//reorders induced subgrapg sg
-	vint new_order					(const typename Graph_t::bb_type& sgfrom, const typename Graph_t::bb_type& sgref, pick_t, place_t, bool is_degen);	
+	vint new_order					(gbbs::pick_t, gbbs::place_t=PLACE_LF);	
+	vint new_order					(const typename Graph_t::bb_type& sg, gbbs::pick_t, gbbs::place_t=PLACE_LF);													//reorders induced subgrapg sg
+	vint new_order					(const typename Graph_t::bb_type& sgfrom, const typename Graph_t::bb_type& sgref, gbbs::pick_t, gbbs::place_t, bool is_degen);	
 private:
-	vint new_order_kcore			(place_t=PLACE_LF);
+	vint new_order_kcore			(gbbs::place_t=PLACE_LF);
 
 public:
 //computes a reordering of the subgraph not accesible by vertex index
-	vint new_subg_order				(sort_t, typename Graph_t::bb_type&,  place_t=PLACE_LF);					//cannot be used as input to REORDER functions
+	vint new_subg_order				(gbbs::sort_t, typename Graph_t::bb_type&,  gbbs::place_t=PLACE_LF);					//cannot be used as input to REORDER functions
 	
 ///////////////
 //composite orderings
@@ -103,9 +114,9 @@ public:
 
 ////////////////
 // vertex selection primitives
-	int get_v						(pick_t=PICK_MINFL);	
-	int	get_v						(typename Graph_t::bb_type& sg, pick_t=PICK_MINFL);	
-	int get_v						(typename Graph_t::bb_type& sgfrom, const typename Graph_t::bb_type& sgref, pick_t=PICK_MINFL);
+	int get_v						(gbbs::pick_t=PICK_MINFL);	
+	int	get_v						(typename Graph_t::bb_type& sg, gbbs::pick_t=PICK_MINFL);	
+	int get_v						(typename Graph_t::bb_type& sgfrom, const typename Graph_t::bb_type& sgref, gbbs::pick_t=PICK_MINFL);
 
 protected:
 ////////////////
@@ -539,7 +550,7 @@ int GraphSort<sparse_ugraph>::reorder_in_place(const vint& new_order, Decode& d,
 }
 
 template<typename Graph_t>
-vint GraphSort<Graph_t>::new_order (sort_t alg, place_t place)
+vint GraphSort<Graph_t>::new_order (gbbs::sort_t alg, gbbs::place_t place)
 {
 /////////////////////////////
 // Sorts vertices by different strategies always picking them by non-decreasing index
@@ -555,7 +566,7 @@ vint GraphSort<Graph_t>::new_order (sort_t alg, place_t place)
 	
 	
 	//KCORE ordering special case: does not requiere degree computation
-	if(alg==KCORE){
+	if(alg==gbbs::KCORE){
 		return new_order_kcore(place);
 	}
 			
@@ -643,7 +654,7 @@ return new_order;
 }
 
 template<typename Graph_t>
-vint GraphSort<Graph_t>::new_order (pick_t pick, place_t place){
+vint GraphSort<Graph_t>::new_order (gbbs::pick_t pick, gbbs::place_t place){
 //////////////////////
 // Determines new order in format [OLD_VERTEX]= NEW_VERTEX incrementally (vertex by vertex)
 // using the primitives for vertex selection
@@ -667,7 +678,7 @@ return res;
 }
 
 template<typename Graph_t>
-vint GraphSort<Graph_t>::new_order	(const typename Graph_t::bb_type& sg_in, pick_t pick, place_t place){
+vint GraphSort<Graph_t>::new_order	(const typename Graph_t::bb_type& sg_in, gbbs::pick_t pick, gbbs::place_t place){
 ////////////////////////
 // Reorders INDUCED SUBGRAPH by sg_in (returns a full ordering which may be used in a reorder operation)
 
@@ -697,7 +708,7 @@ return res;
 }
 
 template<typename Graph_t>
-vint GraphSort<Graph_t>::new_order (const typename Graph_t::bb_type& sgfrom_in, const typename Graph_t::bb_type& sgref_in, pick_t pick, place_t place, bool is_degen){
+vint GraphSort<Graph_t>::new_order (const typename Graph_t::bb_type& sgfrom_in, const typename Graph_t::bb_type& sgref_in, gbbs::pick_t pick, gbbs::place_t place, bool is_degen){
 ///////////////////////
 // Reorders, by the usual criteria, vertices in sg in connection to subgraph INDUCED by sgref
 // Typically sgref should include sg but this is not strictly neccessary
@@ -737,7 +748,7 @@ vint GraphSort<Graph_t>::new_order (const typename Graph_t::bb_type& sgfrom_in, 
 }
 
 template<typename Graph_t>
-vint GraphSort<Graph_t>::new_order_kcore (place_t place){
+vint GraphSort<Graph_t>::new_order_kcore (gbbs::place_t place){
 /////////////////////
 // Ret
 	int nV=g.number_of_vertices();
@@ -766,7 +777,7 @@ vint GraphSort<Graph_t>::new_order_kcore (place_t place){
 }
 
 template<typename Graph_t>
-vint GraphSort<Graph_t>::new_subg_order (sort_t alg, typename Graph_t::bb_type& sg,  place_t place){
+vint GraphSort<Graph_t>::new_subg_order (gbbs::sort_t alg, typename Graph_t::bb_type& sg,  gbbs::place_t place){
 /////////////////
 // Returns a list of vertices in a subgraph (as a bitstring of vertices) ordered by non decreasing param-alg criteria
 // CANNOT be used in REORDER functions
@@ -881,7 +892,7 @@ return new_order;
 //
 ////////////////
 template<typename Graph_t>
-int GraphSort<Graph_t>::get_v(pick_t pick){
+int GraphSort<Graph_t>::get_v(gbbs::pick_t pick){
 ///////////////////
 // Picks vertex from the graph according to pick strategy (ties lexicographical)
 // Breaks ties first found
@@ -939,7 +950,7 @@ int GraphSort<Graph_t>::get_v(pick_t pick){
 }
 
 template<typename Graph_t>
-int GraphSort<Graph_t>::get_v(typename Graph_t::bb_type& sg, pick_t pick){	
+int GraphSort<Graph_t>::get_v(typename Graph_t::bb_type& sg, gbbs::pick_t pick){	
 // ////////////////////
 // Picks vertex from induced subgraph according to pick degree criteria (ties lexicographical)
 //
@@ -1010,7 +1021,7 @@ int GraphSort<Graph_t>::get_v(typename Graph_t::bb_type& sg, pick_t pick){
 }
 
 template<typename Graph_t>
-int GraphSort<Graph_t>::get_v (typename Graph_t::bb_type& sgfrom, const typename Graph_t::bb_type& sgref, pick_t pick){
+int GraphSort<Graph_t>::get_v (typename Graph_t::bb_type& sgfrom, const typename Graph_t::bb_type& sgref, gbbs::pick_t pick){
 ////////////////////////////
 // Picks vertex from induced subgraph sgfrom according to pick degree criteria (ties lexicographical)
 // related to induced graph sgref (sgfrom and sgref are not necessarily disjoint) 

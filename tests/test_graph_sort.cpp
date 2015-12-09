@@ -6,6 +6,7 @@
 #include "pablodev/utils/common.h"
 
 using namespace std;
+using namespace gbbs;
 TEST(Graph_sort, basic_min_width){
 	
 	cout<<"-----------------------------------"<<endl;
@@ -19,7 +20,7 @@ TEST(Graph_sort, basic_min_width){
 	GraphSort<ugraph> gs(ug);
 	ug.print_data(); 
 	int edges=ug.number_of_edges();
-	vector<int> new_order=gs.new_order(GraphSort<ugraph>::MIN_DEG_DEGEN,GraphSort<ugraph>::PLACE_FL);
+	vector<int> new_order=gs.new_order(MIN_DEG_DEGEN,PLACE_FL);
 	gs.reorder(new_order, &cout);
 
 	//solution 
@@ -53,7 +54,7 @@ TEST(Graph_sort_sparse, basic_min_width){
 	GraphSort<sparse_ugraph> gs(ug);
 	ug.print_data(); 
 	int edges=ug.number_of_edges();
-	vector<int> new_order=gs.new_order(GraphSort<sparse_ugraph>::MIN_DEG_DEGEN,GraphSort<sparse_ugraph>::PLACE_FL);
+	vector<int> new_order=gs.new_order(MIN_DEG_DEGEN,PLACE_FL);
 	gs.reorder(new_order, &cout);
 
 	//solution 
@@ -87,7 +88,7 @@ TEST(Graph_sort, basic_max_width){
 	GraphSort<ugraph> gs(ug);
 	ug.print_data(); 
 	int edges=ug.number_of_edges();
-	vector<int> new_order=gs.new_order(GraphSort<ugraph>::MAX_DEG_DEGEN, GraphSort<ugraph>::PLACE_FL);
+	vector<int> new_order=gs.new_order(MAX_DEG_DEGEN, PLACE_FL);
 	gs.reorder(new_order, &cout);
 
 	//solution 
@@ -119,7 +120,7 @@ TEST(Graph_sort, basic_subgraph){
 
 	GraphSort<ugraph> gs(ug);
 	ug.print_data(); 
-	vector<int> new_order=gs.new_subg_order(GraphSort<ugraph>::MIN_DEG_DEGEN, subgraph, GraphSort<ugraph>::PLACE_FL);
+	vector<int> new_order=gs.new_subg_order(MIN_DEG_DEGEN, subgraph, PLACE_FL);
 	
 	//solution 
 	vector<int> sol(subgraph.popcn64());
@@ -144,7 +145,7 @@ TEST(Graph_sort, basic_kcore){
 	ug.print_data(); 
 	
 	//non decreasing kcore ordering
-	vector<int> new_order=gs.new_order(GraphSort<ugraph>::KCORE,GraphSort<ugraph>::PLACE_FL);
+	vector<int> new_order=gs.new_order(KCORE,PLACE_FL);
 	com::stl::print_collection<vector<int>>(new_order); cout<<endl;
 
 	vector<int> sol(10);
@@ -154,7 +155,7 @@ TEST(Graph_sort, basic_kcore){
 	EXPECT_EQ(sol, new_order);
 
 	//non increasing kcore ordering (standard for clique)
-	new_order=gs.new_order(GraphSort<ugraph>::KCORE,GraphSort<ugraph>::PLACE_LF);
+	new_order=gs.new_order(KCORE,PLACE_LF);
 	com::stl::print_collection<vector<int>>(new_order);
 
 	sol[0]=3; sol[1]=2;  sol[2]=1;  sol[3]=0; 
@@ -190,7 +191,7 @@ TEST(Graph_sort, Decode){
 //MIN WIDTH algorithm
 	cout<<endl<<"init min width----------------------"<<endl;
 	GraphSort<ugraph> o(ug1);
-	vint vres=o.new_order(GraphSort<ugraph>::MIN_DEG_DEGEN, GraphSort<ugraph>::PLACE_LF); cout<<endl;
+	vint vres=o.new_order(gbbs::MIN_DEG_DEGEN, gbbs::PLACE_LF); cout<<endl;
 	copy(vres.begin(), vres.end(), ostream_iterator<int>(cout, " "));
 	o.reorder(vres);
 
@@ -258,7 +259,7 @@ cout<<"Order: normal_subgraph-------------------------"<<endl;
 	ugraph ug1(ug);
 	cout<<endl<<"init min width----------------------"<<endl;
 	GraphSort<ugraph> o(ug1);
-	vint vres=o.new_subg_order(GraphSort<ugraph>::MIN_DEG_DEGEN, subg, GraphSort<ugraph>::PLACE_FL); cout<<endl;
+	vint vres=o.new_subg_order(gbbs::MIN_DEG_DEGEN, subg, gbbs::PLACE_FL); cout<<endl;
 	com::stl::print_collection(vres);
 	
 	vint vsol(subg.popcn64());
@@ -268,7 +269,7 @@ cout<<"Order: normal_subgraph-------------------------"<<endl;
 	
 	//reverse order
 	ug1=ug;
-	vres=o.new_subg_order(GraphSort<ugraph>::MIN_DEG_DEGEN, subg, GraphSort<ugraph>::PLACE_LF); 
+	vres=o.new_subg_order(gbbs::MIN_DEG_DEGEN, subg, gbbs::PLACE_LF); 
 	reverse(vsol.begin(), vsol.end());
 	EXPECT_EQ(vsol, vres);
 	
@@ -279,7 +280,7 @@ cout<<"Order: normal_subgraph-------------------------"<<endl;
 	cout<<endl<<"init min width min tie static----------------------"<<endl;
 	GraphSort<ugraph> o1(ug1);
 	subg.print();
-	vres=o1.new_subg_order(GraphSort<ugraph>::MIN_DEG_DEGEN_TIE_STATIC, subg,  GraphSort<ugraph>::PLACE_FL); 
+	vres=o1.new_subg_order(gbbs::MIN_DEG_DEGEN_TIE_STATIC, subg,  gbbs::PLACE_FL); 
 	vsol[0]=5; vsol[1]=4; vsol[2]=1; vsol[3]=2; vsol[4]=3;	
 	EXPECT_EQ(vsol, vres);
 	EXPECT_EQ(subg.popcn64(),vres.size());
@@ -305,7 +306,7 @@ cout<<"Order: sparse_subgraph-------------------------"<<endl;
 	sparse_ugraph ug1(ug);
 	cout<<endl<<"init min width----------------------"<<endl;
 	GraphSort<sparse_ugraph> o(ug1);
-	vint vres=o.new_subg_order(GraphSort<sparse_ugraph>::MIN_DEG_DEGEN, subg, GraphSort<sparse_ugraph>::PLACE_FL); cout<<endl;
+	vint vres=o.new_subg_order(MIN_DEG_DEGEN, subg, PLACE_FL); cout<<endl;
 	com::stl::print_collection(vres);
 		
 	vint vsol(subg.popcn64());
@@ -314,7 +315,7 @@ cout<<"Order: sparse_subgraph-------------------------"<<endl;
 	EXPECT_EQ(subg.popcn64(),vres.size());
 	
 	//reverse order
-	vres=o.new_subg_order(GraphSort<sparse_ugraph>::MIN_DEG_DEGEN, subg); 
+	vres=o.new_subg_order(MIN_DEG_DEGEN, subg); 
 	reverse(vsol.begin(), vsol.end());
 	EXPECT_EQ(vsol, vres);
 	
@@ -325,7 +326,7 @@ cout<<"Order: sparse_subgraph-------------------------"<<endl;
 	//penalizes these edges since they now have more support
 	cout<<endl<<"init min width min tie static----------------------"<<endl;
 	GraphSort<sparse_ugraph> o1(ug1);
-	vres=o1.new_subg_order(GraphSort<sparse_ugraph>::MIN_DEG_DEGEN_TIE_STATIC, subg, GraphSort<sparse_ugraph>::PLACE_FL); 
+	vres=o1.new_subg_order(MIN_DEG_DEGEN_TIE_STATIC, subg, PLACE_FL); 
 	vsol[0]=5; vsol[1]=4; vsol[2]=1; vsol[3]=2; vsol[4]=3;	
 	EXPECT_EQ(vsol, vres);
 	EXPECT_EQ(subg.popcn64(),vres.size());
@@ -345,7 +346,7 @@ TEST(GraphSort, basic_new_graph_sort){
 	ug.add_edge(78, 5);
 
 	GraphSort<ugraph> cs(ug);
-	cs.new_order(GraphSort<ugraph>::MIN_DEG_DEGEN, GraphSort<ugraph>::PLACE_LF);
+	cs.new_order(MIN_DEG_DEGEN, PLACE_LF);
 
 	cout<<"--------------------------------------"<<endl;
 }
@@ -386,9 +387,9 @@ TEST(GraphSort_in_place, reorder_simple){
     cout<<"--------------"<<endl;
    
 	//checks reverse order
-    GraphSort<sparse_ugraph>::print(o.new_order(GraphSort<sparse_ugraph>::NONE, GraphSort<sparse_ugraph>::PLACE_LF));		
-    o.reorder(o.new_order(GraphSort<sparse_ugraph>::NONE));
-    o2.reorder_in_place(o2.new_order(GraphSort<sparse_ugraph>::NONE));
+    GraphSort<sparse_ugraph>::print(o.new_order(gbbs::NONE, gbbs::PLACE_LF));		
+    o.reorder(o.new_order(gbbs::NONE));
+    o2.reorder_in_place(o2.new_order(gbbs::NONE));
     cout<<"1:"<<endl;
     ug.print_edges();
     cout<<"2:"<<endl;
@@ -431,9 +432,9 @@ TEST(Graph_composite_sort, basic){
 
     
     GraphSort<ugraph> o(ug);
-    vector<pair<GraphSort<ugraph>::sort_t, GraphSort<ugraph>::place_t> > lo;
-    lo.push_back(pair<GraphSort<ugraph>::sort_t, GraphSort<ugraph>::place_t>(GraphSort<ugraph>::NONE,GraphSort<ugraph>::PLACE_LF));
-    lo.push_back(pair<GraphSort<ugraph>::sort_t, GraphSort<ugraph>::place_t>(GraphSort<ugraph>::NONE,GraphSort<ugraph>::PLACE_LF));
+    vector<pair<sort_t, place_t> > lo;
+    lo.push_back(pair<sort_t, place_t>(NONE,PLACE_LF));
+    lo.push_back(pair<sort_t, place_t>(NONE,PLACE_LF));
 
     Decode d;
     o.reorder_composite(lo,d,NULL);
@@ -465,16 +466,16 @@ TEST(Graph_sort,get_v_basic ){
 ///////////////
 // GRAPH
 
-	int v=gs.get_v(GraphSort<ugraph>::PICK_MINFL);
+	int v=gs.get_v(gbbs::PICK_MINFL);
 	EXPECT_EQ(4,v);
 
-	v=gs.get_v(GraphSort<ugraph>::PICK_MINLF);
+	v=gs.get_v(gbbs::PICK_MINLF);
 	EXPECT_EQ(9,v);
 
-	v=gs.get_v(GraphSort<ugraph>::PICK_MAXLF);
+	v=gs.get_v(gbbs::PICK_MAXLF);
 	EXPECT_EQ(3,v);
 
-	v=gs.get_v(GraphSort<ugraph>::PICK_MAXFL);
+	v=gs.get_v(gbbs::PICK_MAXFL);
 	EXPECT_EQ(0,v);
 
 ///////////////
@@ -485,16 +486,16 @@ TEST(Graph_sort,get_v_basic ){
 	sg.set_bit(3);
 	sg.set_bit(9);
 		
-	v=gs.get_v(sg, GraphSort<ugraph>::PICK_MINFL);
+	v=gs.get_v(sg, gbbs::PICK_MINFL);
 	EXPECT_EQ(9,v);
 
-	v=gs.get_v(sg, GraphSort<ugraph>::PICK_MINLF);
+	v=gs.get_v(sg, gbbs::PICK_MINLF);
 	EXPECT_EQ(9,v);
 
-	v=gs.get_v(sg, GraphSort<ugraph>::PICK_MAXFL);
+	v=gs.get_v(sg, gbbs::PICK_MAXFL);
 	EXPECT_EQ(0,v);
 
-	v=gs.get_v(sg, GraphSort<ugraph>::PICK_MAXLF);
+	v=gs.get_v(sg, gbbs::PICK_MAXLF);
 	EXPECT_EQ(0,v);
 	
 	cout<<"-----------------------------------"<<endl;
@@ -515,7 +516,7 @@ TEST(Graph_sort,new_order_primitives_basic){
 
 	//sorting with primitives
 	GraphSort<ugraph> gs(ug1);
-	vint order=gs.new_order(GraphSort<ugraph>::PICK_MINFL, GraphSort<ugraph>::PLACE_LF);		//Equivalent to MIN_DEG_DEGEN
+	vint order=gs.new_order(gbbs::PICK_MINFL, gbbs::PLACE_LF);		//Equivalent to MIN_DEG_DEGEN
 	vint sol(SIZE);
 	sol[0]=3; sol[1]=2; sol[2]=1; sol[3]=0; sol[4]=9;
 	sol[5]=8; sol[6]=7; sol[7]=6; sol[8]=5; sol[9]=4;
@@ -525,7 +526,7 @@ TEST(Graph_sort,new_order_primitives_basic){
 	gs.reorder(order);
 	ugraph ug2(ug);
 	GraphSort<ugraph> gs2(ug2);
-	gs2.reorder(gs.new_order(GraphSort<ugraph>::MIN_DEG_DEGEN));
+	gs2.reorder(gs.new_order(gbbs::MIN_DEG_DEGEN));
 
 	EXPECT_EQ(ug2.number_of_edges(), ug1.number_of_edges());	
 	EXPECT_EQ(ug2, ug1);
@@ -553,7 +554,7 @@ TEST(Graph_sort,new_order_primitives_sg_I){
 	//will only sort G[{0,...,3}]
 	sg.set_bit(0,3);
 
-	vint order=gs.new_order(sg, GraphSort<ugraph>::PICK_MINFL, GraphSort<ugraph>::PLACE_LF);				
+	vint order=gs.new_order(sg, gbbs::PICK_MINFL, gbbs::PLACE_LF);				
 	com::stl::print_collection(order);
 
 	vint sol(SIZE);
@@ -561,7 +562,7 @@ TEST(Graph_sort,new_order_primitives_sg_I){
 	sol[5]=5; sol[6]=6; sol[7]=7; sol[8]=8; sol[9]=9;
 	EXPECT_EQ(sol, order);
 
-	order=gs.new_order(sg, GraphSort<ugraph>::PICK_MINFL, GraphSort<ugraph>::PLACE_FL);						//equivalent to NO SORTING
+	order=gs.new_order(sg, gbbs::PICK_MINFL, gbbs::PLACE_FL);						//equivalent to NO SORTING
 	com::stl::print_collection(order);
 
 	sol[0]=0; sol[1]=1; sol[2]=2; sol[3]=3; sol[4]=4;
@@ -592,7 +593,7 @@ TEST(Graph_sort,new_order_primitives_sg_II){
 	sg.set_bit(0,3);
 	sgV.set_bit(0, SIZE-1);
 
-	vint order=gs.new_order(sg, sgV, GraphSort<ugraph>::PICK_MINFL, GraphSort<ugraph>::PLACE_LF, true);		//Equivalent to MIN_DEGEN (see sg_I test)				
+	vint order=gs.new_order(sg, sgV, gbbs::PICK_MINFL, gbbs::PLACE_LF, true);		//Equivalent to MIN_DEGEN (see sg_I test)				
 	com::stl::print_collection(order);
 
 	vint sol(SIZE);
