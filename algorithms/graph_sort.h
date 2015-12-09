@@ -90,18 +90,18 @@ typedef typename vpair::iterator								vpair_it;
 	int reorder_in_place			(const vint& new_order, Decode& d, ostream* o = NULL);
 
 //computes a reordering [OLD_INDEX]=NEW_INDEX
-	vint new_order					(gbbs::sort_t alg, gbbs::place_t=PLACE_LF);																						//use by default
+	vint new_order					(gbbs::sort_t alg, gbbs::place_t= gbbs::PLACE_LF);																						//use by default
 
 	//iterative variants (use get_v)
-	vint new_order					(gbbs::pick_t, gbbs::place_t=PLACE_LF);	
-	vint new_order					(const typename Graph_t::bb_type& sg, gbbs::pick_t, gbbs::place_t=PLACE_LF);													//reorders induced subgrapg sg
+	vint new_order					(gbbs::pick_t, gbbs::place_t= gbbs::PLACE_LF);	
+	vint new_order					(const typename Graph_t::bb_type& sg, gbbs::pick_t, gbbs::place_t=gbbs::PLACE_LF);													//reorders induced subgrapg sg
 	vint new_order					(const typename Graph_t::bb_type& sgfrom, const typename Graph_t::bb_type& sgref, gbbs::pick_t, gbbs::place_t, bool is_degen);	
 private:
-	vint new_order_kcore			(gbbs::place_t=PLACE_LF);
+	vint new_order_kcore			(gbbs::place_t= gbbs::PLACE_LF);
 
 public:
 //computes a reordering of the subgraph not accesible by vertex index
-	vint new_subg_order				(gbbs::sort_t, typename Graph_t::bb_type&,  gbbs::place_t=PLACE_LF);					//cannot be used as input to REORDER functions
+	vint new_subg_order				(gbbs::sort_t, typename Graph_t::bb_type&,  gbbs::place_t= gbbs::PLACE_LF);					//cannot be used as input to REORDER functions
 	
 ///////////////
 //composite orderings
@@ -114,9 +114,9 @@ public:
 
 ////////////////
 // vertex selection primitives
-	int get_v						(gbbs::pick_t=PICK_MINFL);	
-	int	get_v						(typename Graph_t::bb_type& sg, gbbs::pick_t=PICK_MINFL);	
-	int get_v						(typename Graph_t::bb_type& sgfrom, const typename Graph_t::bb_type& sgref, gbbs::pick_t=PICK_MINFL);
+	int get_v						(gbbs::pick_t= gbbs::PICK_MINFL);	
+	int	get_v						(typename Graph_t::bb_type& sg, gbbs::pick_t= gbbs::PICK_MINFL);	
+	int get_v						(typename Graph_t::bb_type& sgfrom, const typename Graph_t::bb_type& sgref, gbbs::pick_t= gbbs::PICK_MINFL);
 
 protected:
 ////////////////
@@ -352,7 +352,7 @@ return 0;
 
 template<class Graph_t>
 inline
-int GraphSort<Graph_t>::reorder_composite (vpair& lord, Decode& d,  ostream* o = NULL){
+int GraphSort<Graph_t>::reorder_composite (vpair& lord, Decode& d,  ostream* o ){
 //////////////////
 // iterates over the list and reorders the graph accordingly
 // stores in decoder each change in format [NEW_INDEX]=OLD_INDEX
@@ -363,21 +363,21 @@ int GraphSort<Graph_t>::reorder_composite (vpair& lord, Decode& d,  ostream* o =
 	d.clear();
 	
 	for(vpair_it it=lord.begin(); it!=lord.end(); it++){
-		pair<sort_t, place_t> ord=*it;
+		pair<gbbs::sort_t, gbbs::place_t> ord=*it;
 
 		//sort
 		switch(ord.first){
-		case MIN_DEG_DEGEN:
-			reorder(new_order(MIN_DEG_DEGEN,ord.second),d,o);
+		case gbbs::MIN_DEG_DEGEN:
+			reorder(new_order(gbbs::MIN_DEG_DEGEN,ord.second),d,o);
 			break;
-		case MAX_DEG_DEGEN:
-			reorder(new_order(MAX_DEG_DEGEN,ord.second),d,o);
+		case gbbs::MAX_DEG_DEGEN:
+			reorder(new_order(gbbs::MAX_DEG_DEGEN,ord.second),d,o);
 			break;
-		case MIN_DEG_DEGEN_TIE_STATIC:
-			reorder(new_order(MIN_DEG_DEGEN_TIE_STATIC,ord.second),d,o);
+		case gbbs::MIN_DEG_DEGEN_TIE_STATIC:
+			reorder(new_order(gbbs::MIN_DEG_DEGEN_TIE_STATIC,ord.second),d,o);
 			break;
-		case NONE:
-			reorder(new_order(NONE,ord.second),d,o);
+		case gbbs::NONE:
+			reorder(new_order(gbbs::NONE,ord.second),d,o);
 			break;
 		//others
 		default:
@@ -665,7 +665,7 @@ vint GraphSort<Graph_t>::new_order (gbbs::pick_t pick, gbbs::place_t place){
 	typename Graph_t::bb_type sg(NV);
 	sg.set_bit(0, NV-1);
 	
-	(place==PLACE_LF)?  k=NV-1 : k=0;
+	(place==gbbs::PLACE_LF)?  k=NV-1 : k=0;
 	while(true){
 		v_sel=get_v(sg, pick);
 		if(v_sel==EMPTY_ELEM) break;
