@@ -505,8 +505,8 @@ int Ugraph<T>::create_complement (Ugraph& ug)	{
 	//memory allocation of new complement graph
 	if( ug.init(Graph<T>::m_size)==-1 ) return -1;
 
-	for(int i=0; i<Graph<T>::m_size; i++){
-		for(int j=0; j<Graph<T>::m_size; j++){
+	for(int i=0; i<Graph<T>::m_size-1; i++){
+		for(int j=i+1; j<Graph<T>::m_size; j++){
 			if(!Graph<T>::m_g[i].is_bit(j)){
 				ug.add_edge(i,j);
 			}
