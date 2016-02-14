@@ -47,11 +47,13 @@ public:
 
 			
 	//degree
-	int degree					(int v)							const;
-	int degree					(int v, const BitBoardN& bbn)	const;
-	int degree					(int v, const BitBoardS& bbs)	const;
-	int max_degree_of_graph		()								const;	
-	int max_degree_of_subgraph	(T& sg)							const;
+	int degree					(int v)									const;
+	int degree					(int v, const BitBoardN& bbn)			const;
+	int degree					(int v, int UB, const BitBoardN& bbn)	const;  //truncated degree (14/2/2016)
+	int degree					(int v, const BitBoardS& bbs)			const;
+	int degree					(int v, int UB, const BitBoardS& bbs)	const;	//truncated degree  (14/2/2016)
+	int max_degree_of_graph		()										const;	
+	int max_degree_of_subgraph	(T& sg)									const;
 
 	BITBOARD number_of_edges	(bool lazy=true);								
 	BITBOARD number_of_edges	(const BitBoardN& )				const;			//on induced graph by list of vertices
@@ -456,6 +458,23 @@ int Ugraph<T>::degree (int v, const BitBoardN& bbn) const	{
 return ndeg;
 }
 
+template<class T>
+inline
+int Ugraph<T>::degree (int v, int UB, const BitBoardN& bbn) const	{
+////////////////////
+// degree of v in bbn subgraph. 
+// if deg is greater than UB the search is stopped and UB is returned
+
+
+	int ndeg=0;
+	for(int i=0; i<Graph<T>::m_BB;i++){
+		ndeg+=bitblock::popc64(Graph<T>::m_g[v].get_bitboard(i)& bbn.get_bitboard(i));
+		if(ndeg>=UB) return UB;
+	}
+
+return ndeg;
+}
+
 template<>
 inline
 int Ugraph<sparse_bitarray>::degree (int v, const BitBoardN& bbn) const	{
@@ -465,6 +484,22 @@ int Ugraph<sparse_bitarray>::degree (int v, const BitBoardN& bbn) const	{
 	int ndeg=0;
 	for(sparse_bitarray::velem_cit it= m_g[v].begin(); it!=m_g[v].end(); ++it){
 		ndeg+=bitblock::popc64(it->bb & bbn.get_bitboard(it->index));
+	}
+
+return ndeg;
+}
+
+template<>
+inline
+int Ugraph<sparse_bitarray>::degree (int v, int UB, const BitBoardN& bbn) const	{
+////////////////////
+// degree of v considering only adjacent vertices in subgraph passed
+// if deg is greater than UB the search is truncated and UB is returned
+	
+	int ndeg=0;
+	for(sparse_bitarray::velem_cit it= m_g[v].begin(); it!=m_g[v].end(); ++it){
+		ndeg+=bitblock::popc64(it->bb & bbn.get_bitboard(it->index));
+		if(ndeg>=UB) return UB;
 	}
 
 return ndeg;
@@ -488,6 +523,32 @@ int Ugraph<sparse_bitarray>::degree (int v, const BitBoardS & bbs) const	{
 			itbb++;
 		}else{ //same index
 			ndeg+=bitblock::popc64(itv->bb & itbb->bb);
+			itv++; itbb++;
+		}
+	}
+	return ndeg;
+}
+
+template<>
+inline
+int Ugraph<sparse_bitarray>::degree (int v, int UB, const BitBoardS & bbs) const	{
+////////////////////
+// degree of v considering only adjacent vertices in subgraph passed
+// if deg is greater than UB the search is truncated and UB is returned
+
+	int ndeg=0;
+	sparse_bitarray::velem_cit itv = m_g[v].begin();
+	sparse_bitarray::velem_cit itbb = bbs.begin();
+	
+	while(itv!=m_g[v].end() && itbb!=bbs.end()){
+
+		if(itv->index<itbb->index){ 
+			itv++;
+		}else if(itv->index>itbb->index){
+			itbb++;
+		}else{ //same index
+			ndeg+=bitblock::popc64(itv->bb & itbb->bb);
+			if(ndeg>=UB) return UB;
 			itv++; itbb++;
 		}
 	}
